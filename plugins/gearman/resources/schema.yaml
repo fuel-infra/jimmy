@@ -1,0 +1,25 @@
+title: Schema for Gearman Plugin
+type: object
+additionalProperties: false
+properties:
+  enable:
+    description: Enable or disable Gearman plugin
+    type: boolean
+
+  host:
+    description: |
+      Set the Gearman Server's host name, something like
+      localhost, 127.0.0.1 or server.domain.com
+    type: string
+
+  port:
+    description: |
+      Set the Gearman server port. By default the Gearman
+      server's port typically set to 4730
+    type: number
+
+required:
+- enable
+- host
+- port
+

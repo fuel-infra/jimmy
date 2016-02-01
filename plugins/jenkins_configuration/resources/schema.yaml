@@ -1,0 +1,33 @@
+title: Schema for Global Jenkins configuration
+type: object
+additionalProperties: false
+properties:
+  admin_email:
+    description: |
+      Notification e-mails from Jenkins to project owners will be sent
+      with this address in the from header.
+    type: string
+
+  markup_format:
+    enum: ["plain-text", "raw-html", "unsafe"]
+    description: |
+      Markup formatter allows to use Raw HTML, Plain Text or unsafe markup
+      for jobs, views descriptions.
+    type: string
+
+  num_of_executors:
+    description: Number of executors for Master node.
+    type: number
+
+  scm_checkout_retry_count:
+    description: |
+      If a build fails to checkout from the repository, Jenkins will retry
+      the specified number of times before giving up.
+    type: number
+
+required:
+- admin_email
+- markup_format
+- num_of_executors
+- scm_checkout_retry_count
+

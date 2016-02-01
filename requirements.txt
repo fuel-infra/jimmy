@@ -1,0 +1,8 @@
+click==6.2
+functools32==3.2.3.post2
+Jinja2==2.8
+jsonschema==2.5.1
+MarkupSafe==0.23
+pyaml==15.8.2
+PyYAML==3.11
+wheel==0.24.0

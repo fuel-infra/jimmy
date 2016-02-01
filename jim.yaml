@@ -1,0 +1,48 @@
+plugin-directories:
+  - ./plugins
+
+defaults:
+  inject:
+    jenkins_cli_path: /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar
+
+setup:
+  - name: setup
+teardown:
+  - name: teardown
+
+pipelines:
+  main:
+    steps:
+
+    - name: read_source
+      description: |
+        Read source file with Jenkins configuration
+      params:
+        path: sample/input/jenkins.yaml
+
+    - name: build_source
+      description: |
+        Build and post-process the initial configuration
+      inject:
+        source: results.read_source.source
+
+    - name: validate_source
+      description: |
+        Perform validation of post-processed document against
+        jsonschemas or amother kind of checks
+      inject:
+        source: results.build_source.source
+
+    - name: update_dest
+      description: |
+        Update jenkins configuration by calling jenkins cli
+        and executing groovy scripts
+      inject:
+        source: results.build_source.source
+        jenkins_url: env.jenkins_url
+        jenkins_cli_path: config.defaults.inject.jenkins_cli_path
+
+
+envs:
+  main:
+    jenkins_url: http://localhost:8080

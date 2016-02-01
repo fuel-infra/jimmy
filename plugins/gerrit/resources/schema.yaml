@@ -1,0 +1,36 @@
+title: Schema for Gerrit Plugin
+type: object
+additionalProperties: false
+properties:
+  servers:
+    type: array
+    additionalItems: false
+    items:
+      type: object
+      properties:
+        servername:
+          description: The name of the Gerrit server configuration.
+          type: string
+
+        hostname:
+          description: The hostname where Gerrit is listening for ssh command connections.
+          type: string
+
+        username:
+          description: The username to use when authenticating to Gerrit.
+          type: string
+
+        url:
+          description: The base URL to reach the Gerrit UI.
+          type: string
+
+        auth_key:
+          description: The path to the private key file for Gerrit ssh authentication.
+          type: string
+
+      required:
+      - servername
+      - hostname
+      - username
+      - url
+      - auth_key

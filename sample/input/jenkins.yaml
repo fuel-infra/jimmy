@@ -1,0 +1,26 @@
+jenkins:
+  plugins:
+    gearman:
+      enable: true
+      host: zuul01-test.infra.mirantis.net
+      port: 4730
+
+    gerrit:
+      servers:
+      - servername: test-gerrit-name
+        hostname: test-hostname
+        username: test-username
+        url: http://test.com
+        auth_key: /var/lib/jenkins/.ssh/id_rsa
+      - servername: test-gerrit-name2
+        hostname: test-hostname2
+        username: test-username2
+        url: http://test.com2
+        auth_key: /var/lib/jenkins/.ssh/id_rsa
+
+  configuration:
+    admin_email: CI <admin@example.com>
+    markup_format: raw-html
+    num_of_executors: 2
+    scm_checkout_retry_count: 1
+

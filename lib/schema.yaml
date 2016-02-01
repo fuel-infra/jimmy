@@ -1,0 +1,143 @@
+title: Schema of Jim configuration file
+$schema: http://json-schema.org/draft-04/schema#
+type: object
+additionalProperties: false
+
+definitions:
+
+  key-value:
+    type: object
+    patternProperties:
+      '^\w+$':
+        type:
+        - "null"
+        - string
+        - number
+
+  params:
+    description: |
+      Value which should be passed to step function under
+      provided name
+    oneOf:
+    - type: "null"
+    - type: object
+      patternProperties:
+        '^\w+$':
+          type:
+          - string
+          - number
+
+  inject:
+    description: |
+      Path in context from where to lookup value which
+      should be passed to step function under provided name
+    oneOf:
+    - type: "null"
+    - type: object
+      patternProperties:
+        '^\w+$':
+          type: string
+
+  steps:
+    oneOf:
+    - type: "null"
+    - type: object
+      patternProperties:
+        '^\w+$':
+          type: object
+          properties:
+
+            params:
+              $ref: "#/definitions/params"
+
+            inject:
+              $ref: "#/definitions/inject"
+
+  pipeline-steps:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      properties:
+
+        name:
+          type: string
+
+        description:
+          type: string
+
+        params:
+          $ref: "#/definitions/params"
+
+        inject:
+          $ref: "#/definitions/inject"
+
+      required:
+        - name
+
+  pipeline:
+    type: object
+    properties:
+      params:
+        $ref: "#/definitions/params"
+
+      inject:
+        $ref: "#/definitions/inject"
+
+      steps:
+        $ref: "#/definitions/pipeline-steps"
+
+    required:
+      - steps
+
+
+properties:
+
+  plugin-directories:
+    description: path for searching Jim plugins
+    type: array
+    items:
+      type: string
+
+  defaults:
+    type: object
+    additionalProperties: false
+    properties:
+
+      params:
+        $ref: "#/definitions/params"
+
+      inject:
+        $ref: "#/definitions/inject"
+
+      steps:
+        $ref: "#/definitions/steps"
+
+  setup:
+    $ref: "#/definitions/pipeline-steps"
+
+  teardown:
+    $ref: "#/definitions/pipeline-steps"
+
+  secrets:
+    type: object
+
+  envs:
+    type: object
+    patternProperties:
+
+      '^\w+$':
+        type: object
+        $ref: "#/definitions/key-value"
+
+  pipelines:
+    type: object
+    patternProperties:
+
+      '^\w+$':
+        $ref: "#/definitions/pipeline"
+
+
+required:
+- pipelines
+- envs
