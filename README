@@ -205,7 +205,7 @@ gerrit:
       sample/input/secret/admin.cfg:secret_1:username
     url: http://test.com
     private_key: !import-from-cfg:
-      sample/input/secret/admin.cfg:secret_1:admin.key
+      sample/input/secret/admin.cfg:secret_1:keyfile
 
 
 You can import key(admin.key) directly:

@@ -1,4 +1,10 @@
 jenkins:
+  configuration:
+    admin_email: CI <admin@example.com>
+    markup_format: raw-html
+    num_of_executors: 2
+    scm_checkout_retry_count: 1
+
   plugins:
     gearman:
       enable: true
@@ -18,9 +24,24 @@ jenkins:
         url: http://test.com2
         auth_key: /var/lib/jenkins/.ssh/id_rsa
 
-  configuration:
-    admin_email: CI <admin@example.com>
-    markup_format: raw-html
-    num_of_executors: 2
-    scm_checkout_retry_count: 1
-
+    credentials:
+      password:
+      - scope: global
+        username: user
+        password: !import-from-cfg:
+          sample/input/secret/admin.cfg:secret_1:password
+        description: test username/password user
+      ssh:
+      - scope: global
+        username: user2
+        private_key: /home/user/.ssh/id_rsa
+      - scope: global
+        username: user3
+        passphrase: psphrs
+        description: SSH username with private key from the Jenkins master ~/.ssh
+        private_key: from-jenkins-ssh-dir
+      - scope: system
+        username: user4
+        description: SSH Username with private key entered directly
+        private_key: !include-relative-text:
+          secret/admin.key

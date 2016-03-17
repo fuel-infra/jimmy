@@ -1,5 +1,5 @@
 click==6.2
-functools32==3.2.3.post2
+functools32==3.2.3-2
 Jinja2==2.8
 jsonschema==2.5.1
 MarkupSafe==0.23
