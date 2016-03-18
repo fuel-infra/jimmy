@@ -1,0 +1,51 @@
+title: Schema for Throttle Concurrent Builds Plugin
+type: object
+additionalProperties: false
+properties:
+  categories:
+    type: array
+    additionalItems: false
+    items:
+      type: object
+      properties:
+        category_name:
+          description: The name of Throttle category.
+          type: string
+
+        max_total_concurrent_builds:
+          description: The Maximum Total Concurrent Builds.
+          minimum: 0
+          type: number
+
+        max_concurrent_bulds_per_node:
+          description: The Maximum Concurrent Builds Per Node.
+          minimum: 0
+          type: number
+
+        max_per_labeled_node:
+          description: Additional option "Maximum Per Labeled Node".
+          type: array
+          additionalItems: false
+          items:
+            type: object
+            properties:
+
+              throttled_node_label:
+                description: The Throttled Node Label.
+                type: string
+
+              max_concurrent_per_labeled:
+                description: The Maximum Concurrent Builds Per Node Labeled As Above.
+                minimum: 0
+                type: number
+
+            additionalProperties: false
+            required:
+            - throttled_node_label
+            - max_concurrent_per_labeled
+
+      additionalProperties: false
+      required:
+      - category_name
+      - max_total_concurrent_builds
+      - max_concurrent_bulds_per_node

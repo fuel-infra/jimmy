@@ -45,3 +45,17 @@ jenkins:
         description: SSH Username with private key entered directly
         private_key: !include-relative-text:
           secret/admin.key
+
+    throttle:
+      categories:
+      - category_name: category1
+        max_total_concurrent_builds: 1
+        max_concurrent_bulds_per_node: 0
+        max_per_labeled_node:
+        - throttled_node_label: slave-label1
+          max_concurrent_per_labeled: 1
+        - throttled_node_label: slave-label2
+          max_concurrent_per_labeled: 1
+      - category_name: category2
+        max_total_concurrent_builds: 1
+        max_concurrent_bulds_per_node: 0
