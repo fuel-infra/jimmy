@@ -8,7 +8,7 @@ jenkins:
   plugins:
     gearman:
       enable: true
-      host: zuul01-test.infra.mirantis.net
+      host: zuul01-test.example.com
       port: 4730
 
     gerrit:
@@ -59,3 +59,25 @@ jenkins:
       - category_name: category2
         max_total_concurrent_builds: 1
         max_concurrent_bulds_per_node: 0
+
+  security:
+    ldap:
+      server: ldap://ldap.example.com:3268
+      root_bind:
+        dn: dc=example,dc=com
+        allow_blank: false
+      search:
+        user_filter: userPrincipalName={0}
+      manager:
+        name: ldap-manager
+        password: passwd
+      access:
+      - name: ldap-user
+        permissions:
+        - overall
+        - credentials
+        - gerrit
+
+    cli_user:
+      name: ldap-user
+      public_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDNWgMf6IisSY0HK0mpHkgVhRxHsDom81PJ6W3jAgcSBWY1Kz/2vL98SK91ppgYmnDa2uLbchY2Xk9ciefMpm7Qq5EO6oSPKJJhADyCYAX/7YomZIy4Xu7HxEh0Z6VCLt0DymwN4tBS9JuTISvEm17BLgtis/AemA2eRIl0JAdPf9rmQps4KP5AhG60ucdtTKD0y8TFK95ateplgcq9JLRInhrdg/vnJLbKnV7lP1g5dfY1rm6bum7P+Jwf2tdTOa0b5ucK/+iWVbyPO4Z2afPpblh4Vynfe2wMzzpGAp3n5MwtH2EZmSXm/B6/CkgOFROsmWH8MzQEvNBGHhw+ONR9 jenkins@jenkins-master.test.local

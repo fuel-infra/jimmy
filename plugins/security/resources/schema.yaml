@@ -1,0 +1,213 @@
+title: Schema for Security realm
+type: object
+additionalProperties: false
+
+definitions:
+  permissions:
+    additionalItems: false
+    description: |
+      It is possible to specify list with a required set of perrmissions for user.
+      Example, permissions: overall credentials gerrit manage-ownership slave job run view scm
+    type: array
+    minItems: 1
+    maxItems: 9
+    uniqueItems: true
+    items:
+      type: string
+      enum:
+      - overall
+      - credentials
+      - gerrit
+      - manage-ownership
+      - slave
+      - job
+      - run
+      - view
+      - scm
+
+
+properties:
+  ldap:
+    type: object
+    properties:
+
+      server:
+        description: |
+          The name of the LDAP server host name(s) (like ldap.sun.com). If your LDAP
+          server uses a port other than 389 (which is the standard for LDAP), you can
+          also append a port number here, like ldap.acme.org:1389.
+        type: string
+
+      root_bind:
+        type: object
+        properties:
+
+          dn:
+            description: |
+              For authenticating user and determing the roles given to this user, Jenkins
+              performs multiple LDAP queries. Since an LDAP database is conceptually a big
+              tree and the search is performed recursively. This field specifies the DN of
+              such a subtree. The field looks something like "dc=sun,dc=com"
+            type: string
+
+          allow_blank:
+            description: Allow or not blank root_DN.
+            type: boolean
+
+      search:
+        type: object
+        properties:
+
+          user_base:
+            description:
+              One of the searches Jenkins does on LDAP is to locate the user record given the
+              user name. If you specify a relative DN (from the root DN) here, Jenkins will
+              further narrow down searches to the sub-tree. If you do specify this value, the
+              field normally looks something like "ou=people". Optional value.
+            type: string
+
+          user_filter:
+            description: |
+              One of the searches Jenkins does on LDAP is to locate the user record given the
+              user name. This field determines the query to be run to identify the user record.
+              The query is almost always "uid={0}" as per defined in RFC 2798, so in most cases
+              you should leave this field empty and let this default kick in.
+            type: string
+
+          group_base:
+            description: |
+              One of the searches Jenkins does on LDAP is to locate the list of groups for a user.
+              This field determines the query to be run to identify the organizational unit that
+              contains groups. The query is almost always "ou=groups" so try that first, though
+              this field may be left blank to search from the root DN. Optional value.
+            type: string
+        additionalProperties: false
+        required:
+        - user_filter
+
+      manager:
+        type: object
+        properties:
+
+          name:
+            description: |
+              DN of user to do the lookup in AD tree.
+              Example: CN=jenkins-manager,CN=Users,DC=mydomain,DC=com
+              or just jenkins-manager@mydomain.com
+            type: string
+
+          password:
+            description: Password for the manager DN specified above.
+            type: string
+        additionalProperties: false
+        required:
+        - name
+        - password
+
+      access:
+        description: |
+          Adds users or groups to matrix. Available as optional.
+        additionalItems: false
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              description: The name of the LDAP user or group to add.
+              type: string
+
+            permissions:
+              $ref: "#/definitions/permissions"
+
+          additionalProperties: false
+          required:
+          - name
+          - permissions
+
+    additionalProperties: false
+    required:
+    - server
+    - root_bind
+    - search
+    - manager
+
+
+  password:
+    description: |
+      Use Jenkins's own user list for authentication, instead of delegating that to an
+      external system. This is suitable for smaller set up where you have no existing user
+      database elsewhere.
+    type: object
+    properties:
+
+      access:
+        additionalItems: false
+        description: |
+          Adds users or groups to matrix. Available as optional.
+        type: array
+        items:
+          type: object
+          properties:
+
+            name:
+              description: The login name of user.
+              type: string
+
+            permissions:
+              $ref: "#/definitions/permissions"
+
+            email:
+              description: The E-mail for user.
+              type: string
+
+            password:
+              description: The password for user.
+              type: string
+
+            full_name:
+              description: Last name and first name of user.
+              type: string
+
+            ssh_public_key:
+              description:  Public key for this user.
+              type: string
+          additionalProperties: false
+          required:
+          - name
+          - permissions
+          - email
+          - password
+    additionalProperties: false
+
+
+  unsecured:
+    description: |
+      No authorization is performed. Everyone gets full control of Jenkins, including
+      anonymous users who haven't signed on.
+    type: boolean
+
+
+  cli_user:
+    type: object
+    properties:
+
+      name:
+        type: string
+
+      public_key:
+        type: string
+    additionalProperties: false
+    required:
+    - name
+    - public_key
+
+
+oneOf:
+- required:
+  - ldap
+  - cli_user
+- required:
+  - password
+  - cli_user
+- required:
+  - unsecured
