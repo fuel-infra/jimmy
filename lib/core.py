@@ -220,7 +220,7 @@ class Runner(TreeHelpersMixin, ReadersMixin, LoggerMixin):
                         key: self._tree_read(self.ctx, ctx_path)
                         for key, ctx_path
                         in self._tree_read(step, ['inject'], {}).iteritems()
-                        }
+                    }
 
                     kwargs = {}
 

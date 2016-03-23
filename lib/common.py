@@ -55,8 +55,8 @@ class ReadersMixin(object):
         return conf_reader
 
     @property
-    def plist_reader(self):
-        return plist_reader
+    def proplist_reader(self):
+        return proplist_reader
 
     @property
     def jsonschema_validator(self):

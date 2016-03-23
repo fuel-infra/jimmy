@@ -31,7 +31,7 @@ class Gearman(BaseGroovyPlugin):
                              self.groovy_path,
                              str(data["enable"]),
                              str(data["port"]),
-                             "'{0}'".format(data["host"]) # jenkins cli bug workaround
+                             "'{0}'".format(data["host"])  # jenkins cli bug workaround
                              ], shell=False)
-        except OSError as e:
+        except OSError:
             self.logger.exception('Could not find java')

@@ -29,11 +29,10 @@ class JenkinsConfiguration(BaseGroovyPlugin):
                              "-s", jenkins_url,
                              "groovy",
                              self.groovy_path,
-                             "'{0}'".format(data["admin_email"]), # jenkins-cli bug workaround
+                             "'{0}'".format(data["admin_email"]),  # jenkins-cli bug workaround
                              data["markup_format"],
                              str(data["num_of_executors"]),
                              str(data["scm_checkout_retry_count"])
                              ], shell=False)
-        except OSError as e:
+        except OSError:
             self.logger.exception('Could not find java')
-

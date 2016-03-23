@@ -31,11 +31,11 @@ class Gerrit(BaseGroovyPlugin):
                                  "-s", jenkins_url,
                                  "groovy",
                                  self.groovy_path,
-                                 "'{0}'".format(s["hostname"]), # jenkins-cli bug workaround
+                                 "'{0}'".format(s["hostname"]),  # jenkins-cli bug workaround
                                  "'{0}'".format(s["auth_key"]),
                                  "'{0}'".format(s["servername"]),
                                  "'{0}'".format(s["url"]),
                                  "'{0}'".format(s["username"])
                                  ], shell=False)
-            except OSError as e:
+            except OSError:
                 self.logger.exception('Could not find java')
