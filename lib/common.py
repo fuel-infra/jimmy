@@ -186,7 +186,7 @@ class YamlReader(ReadersMixin, LoggerMixin):
 
         self.logger.info('Reading yaml file "{}"'.format(path_to_file))
 
-        with open(path_to_file, 'rt') as f:
+        with open(path_to_file, 'r') as f:
             output = yaml.load(f, self.Loader)
 
         if not output:

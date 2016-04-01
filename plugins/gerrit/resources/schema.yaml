@@ -27,7 +27,7 @@ properties:
         auth_key:
           description: The path to the private key file for Gerrit ssh authentication.
           type: string
-
+      additionalProperties: false
       required:
       - servername
       - hostname
