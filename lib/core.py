@@ -214,7 +214,7 @@ class Runner(TreeHelpersMixin, ReadersMixin, LoggerMixin):
             self.logger.info('Executing step "{}"'.format(step_name))
 
             for plugin in self.plugins:
-                if hasattr(plugin, step_name):
+                if hasattr(plugin, step_name) and not plugin.skip:
                     params = self._tree_read(step, ['params'], {})
                     injections = {
                         key: self._tree_read(self.ctx, ctx_path)

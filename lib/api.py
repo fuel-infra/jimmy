@@ -33,14 +33,20 @@ class BaseGroovyPlugin(Plugin):
 
     source_tree_path = ''
 
-    allow_empty = False
-
     @property
     def groovy_path(self):
         return os.path.join(self.class_base_dir, self.rel_path_groovy)
 
     def __init__(self):
         self.schema = None
+        self.skip = False
+
+    def check_applicable(self, source, **k):
+        subtree = self._tree_read(source, self.source_tree_path)
+        if not subtree:
+            self.logger.info(
+                'Module {} is not applicable for this YAML configuration'.format(self.__class__.__name__))
+            self.skip = True
 
     def setup(self, **kwargs):
         self.logger.info('Reading schema from {}'.format(self.rel_path_schema))

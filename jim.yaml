@@ -26,6 +26,12 @@ pipelines:
       inject:
         source: results.read_source.source
 
+    - name: check_applicable
+      description: |
+        Check if modules are applicable for source file
+      inject:
+        source: results.read_source.source
+
     - name: validate_source
       description: |
         Perform validation of post-processed document against

@@ -18,6 +18,10 @@ from lib.api import Plugin
 
 
 class MainPlugin(Plugin):
+
+    def __init__(self):
+        self.skip = False
+
     def read_source(self, path, **kwargs):
         return {
             'source': self.yaml_reader.read(path)
