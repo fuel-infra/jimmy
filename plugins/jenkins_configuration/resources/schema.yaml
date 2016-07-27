@@ -25,9 +25,47 @@ properties:
       the specified number of times before giving up.
     type: number
 
+  security_type:
+    enum: ["password", "unsecured"]
+    description: |
+      Security strategy for Jenkins master. 'Password' requires 'admin_user'
+      array and will setup password based matrix authorization strategy and
+      create admin user with full set of permissions. 'Unsecured' will leave
+      Jenkins without security strategy and providing full control to any
+      anonymous user.
+    type: string
+
+  admin_user:
+    type: array
+    additionalItems: false
+    items:
+      type: object
+      properties:
+        username:
+          description: Username of the admin user.
+          type: string
+        password:
+          description: Admin user password.
+          type: string
+        public_key:
+          description: Admin user SSH public key.
+          type: string
+        email:
+          description: Admin user email.
+          type: string
+        name:
+          description: Full name of the admin user.
+          type: string
+    required:
+      - username
+      - password
+      - public_key
+      - email
+      - name
+
 required:
 - admin_email
 - markup_format
 - num_of_executors
 - scm_checkout_retry_count
-
+- security_type

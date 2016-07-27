@@ -4,6 +4,15 @@ jenkins:
     markup_format: raw-html
     num_of_executors: 2
     scm_checkout_retry_count: 1
+    security_type: password
+    admin_user:
+    - username: admin
+      password: !import-from-cfg:
+        sample/input/secret/admin.cfg:secret_1:password
+      email: admin-user@example.com
+      public_key: !include-relative-text:
+        secret/admin.pub
+      name: Admin Adminov
 
   plugins:
     gearman:
