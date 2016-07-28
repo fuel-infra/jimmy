@@ -17,7 +17,8 @@
 import com.sonyericsson.hudson.plugins.gerrit.trigger.config.Config
 import com.sonyericsson.hudson.plugins.gerrit.trigger.GerritServer
 import com.sonyericsson.hudson.plugins.gerrit.trigger.PluginImpl
-
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 hostname = args[0]
 auth_key = args[1]
@@ -42,7 +43,12 @@ if (PluginImpl.getInstance().getServer(name) == null) {
 } else {
   config = PluginImpl.getInstance().getServer(name).getConfig()
 }
-config.setGerritBuildCurrentPatchesOnly(true)
+
+//buildCurrentPatchesOnly can be set only via JSON now
+def buildOnlyCurrent = [buildCurrentPatchesOnly: [abortNewPatchsets: false, abortManualPatchsets: false]]
+JSONObject currentPatchset = (JSONObject) JSONSerializer.toJSON(buildOnlyCurrent)
+
+config.setValues(currentPatchset)
 config.setGerritHostName(hostname)
 config.setGerritFrontEndURL(url)
 config.setGerritUserName(username)
