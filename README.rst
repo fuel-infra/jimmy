@@ -5,7 +5,7 @@ descriptions in YAML format.
 Repo Structure
 ==============
 
-``jim.py```
+``jim.py``
 
   Main executable script.
 
