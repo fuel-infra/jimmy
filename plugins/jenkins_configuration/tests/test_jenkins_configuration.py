@@ -23,7 +23,6 @@ import pytest
 import sys
 import jsonschema
 from jim import cli
-from mock import call
 from click.testing import CliRunner
 from lib.common import yaml_reader
 from tests import base
@@ -58,14 +57,7 @@ class TestJenkinsConfiguration(base.TestCase):
                                       '    admin_email: CI <admin@example.com>',
                                       '    markup_format: raw-html',
                                       '    num_of_executors: 2',
-                                      '    scm_checkout_retry_count: 1',
-                                      '    security_type: password',
-                                      '    admin_user:',
-                                      '    - username: admin',
-                                      '      password: adminpass',
-                                      '      email: admin-user@example.com',
-                                      '      public_key: ssh-rsa AAAAB3Nza/j admin@example',
-                                      '      name: Admin Adminov'
+                                      '    scm_checkout_retry_count: 1'
                                   ])
                               })
         sys.path.insert(0, plugins_dir)
@@ -75,24 +67,13 @@ class TestJenkinsConfiguration(base.TestCase):
         mock_modules.return_value = [jenkins_configuration, read_source]
         os.chdir(jim_dir)
         self.runner.invoke(cli)
-        calls = [call(['java',
-                       '-jar', '<< path to jenkins-cli.jar >>',
-                       '-s', 'http://localhost:8080', 'groovy',
-                       plugins_dir + '/' + 'jenkins_configuration/resources/jenkins.groovy',
-                       'set_security_password', 'admin',
-                       "'admin-user@example.com'", 'adminpass',
-                       "'Admin Adminov'",
-                       "'ssh-rsa AAAAB3Nza/j admin@example'"
-                       ], shell=False),
-                 call(['java',
-                       '-jar', '<< path to jenkins-cli.jar >>',
-                       '-s', 'http://localhost:8080', 'groovy',
-                       plugins_dir + '/' + 'jenkins_configuration/resources/jenkins.groovy',
-                       'set_main_configuration', "'CI <admin@example.com>'",
-                       'raw-html', '2', '1'
-                       ], shell=False)]
-        mock_subp.assert_has_calls(calls, any_order=False)
-        assert 2 == mock_subp.call_count, "subproccess call should be equal to 2"
+        mock_subp.assert_called_with(
+           ['java', '-jar', '<< path to jenkins-cli.jar >>',
+            '-s', 'http://localhost:8080', 'groovy',
+            plugins_dir + '/' + 'jenkins_configuration/resources/jenkins.groovy',
+            "'CI <admin@example.com>'", 'raw-html', '2', '1'
+            ], shell=False)
+        assert 1 == mock_subp.call_count, "subproccess call should be equal to 1"
 
 
 class TestJenkinsSchema(object):
@@ -113,8 +94,7 @@ class TestJenkinsSchema(object):
               'admin_email: CI <admin@example.com>',
               'markup_format: raw-html',
               'num_of_executors: 2',
-              'scm_checkout_retry_count: 1',
-              'security_type: unsecured'
+              'scm_checkout_retry_count: 1'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -125,8 +105,7 @@ class TestJenkinsSchema(object):
             [
               'admin_email: CI <test@example.com>',
               'markup_format: raw-html',
-              'num_of_executors: 3',
-              'security_type: unsecured'
+              'num_of_executors: 3'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -139,8 +118,7 @@ class TestJenkinsSchema(object):
             [
               'scm_checkout_retry_count: 3',
               'markup_format: raw-html',
-              'num_of_executors: 3',
-              'security_type: unsecured'
+              'num_of_executors: 3'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -153,8 +131,7 @@ class TestJenkinsSchema(object):
             [
               'scm_checkout_retry_count: 3',
               'admin_email: CI <test@example.com>',
-              'num_of_executors: 3',
-              'security_type: unsecured'
+              'num_of_executors: 3'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -167,8 +144,7 @@ class TestJenkinsSchema(object):
             [
               'scm_checkout_retry_count: 3',
               'admin_email: CI <test@example.com>',
-              'markup_format: raw-html',
-              'security_type: unsecured'
+              'markup_format: raw-html'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -176,28 +152,13 @@ class TestJenkinsSchema(object):
             jsonschema.validate(repo_data, self.schema)
         assert excinfo.value.message == "'num_of_executors' is a required property"
 
-    def test_validation_fail_for_security_type_required_property(self):
-        self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
-            [
-              'scm_checkout_retry_count: 3',
-              'admin_email: CI <test@example.com>',
-              'markup_format: raw-html',
-              'num_of_executors: 3'
-            ])
-        })
-        repo_data = yaml_reader.read(jenkins_yaml_path)
-        with pytest.raises(jsonschema.ValidationError) as excinfo:
-            jsonschema.validate(repo_data, self.schema)
-        assert excinfo.value.message == "'security_type' is a required property"
-
     def test_validation_fail_if_markup_is_not_enum(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
               'scm_checkout_retry_count: 3',
               'admin_email: CI <test@example.com>',
               'markup_format: 123',
-              'num_of_executors: 3',
-              'security_type: unsecured'
+              'num_of_executors: 3'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -205,29 +166,13 @@ class TestJenkinsSchema(object):
             jsonschema.validate(repo_data, self.schema)
         assert excinfo.value.message == "123 is not one of ['plain-text', 'raw-html', 'unsafe']"
 
-    def test_validation_fail_if_security_type_is_not_enum(self):
-        self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
-            [
-              'scm_checkout_retry_count: 3',
-              'admin_email: CI <test@example.com>',
-              'markup_format: raw-html',
-              'num_of_executors: 3',
-              'security_type: extra-secure'
-            ])
-        })
-        repo_data = yaml_reader.read(jenkins_yaml_path)
-        with pytest.raises(jsonschema.ValidationError) as excinfo:
-            jsonschema.validate(repo_data, self.schema)
-        assert excinfo.value.message == "'extra-secure' is not one of ['password', 'unsecured']"
-
     def test_validation_fail_if_scm_is_not_number(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
               'scm_checkout_retry_count: test',
               'admin_email: CI <test@example.com>',
               'markup_format: raw-html',
-              'num_of_executors: 3',
-              'security_type: unsecured'
+              'num_of_executors: 3'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -241,8 +186,7 @@ class TestJenkinsSchema(object):
               'scm_checkout_retry_count: 3',
               'admin_email: 123',
               'markup_format: raw-html',
-              'num_of_executors: 3',
-              'security_type: unsecured'
+              'num_of_executors: 3'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -256,8 +200,7 @@ class TestJenkinsSchema(object):
               'scm_checkout_retry_count: 3',
               'admin_email: CI <test@example.com>',
               'markup_format: raw-html',
-              'num_of_executors: test',
-              'security_type: unsecured'
+              'num_of_executors: test'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -272,7 +215,6 @@ class TestJenkinsSchema(object):
               'markup_format: raw-html',
               'num_of_executors: 3',
               'scm_checkout_retry_count: 1',
-              'security_type: unsecured',
               'test: 123'
             ])
         })
