@@ -64,7 +64,8 @@ class TestCredentialsPlugin(base.TestCase):
                                       '      ssh:',
                                       '      - scope: global',
                                       '        username: user2',
-                                      '        private_key: /home/user/.ssh/id_rsa'
+                                      '        private_key: /home/user/.ssh/id_rsa',
+                                      '        id: this-is-an-id'
                                   ])
                               })
         sys.path.insert(0, plugins_dir)
@@ -82,7 +83,9 @@ class TestCredentialsPlugin(base.TestCase):
                        "'global'",
                        "'user'",
                        "'passwd'",
-                       "'test username/password user'"],
+                       "'test username/password user'",
+                       "''",
+                       "''"],
                       shell=False),
                  call(['java',
                        '-jar', '<< path to jenkins-cli.jar >>',
@@ -93,7 +96,8 @@ class TestCredentialsPlugin(base.TestCase):
                        "'user2'",
                        "''",
                        "''",
-                       "'/home/user/.ssh/id_rsa'"],
+                       "'/home/user/.ssh/id_rsa'",
+                       "'this-is-an-id'"],
                       shell=False)]
         mock_subp.assert_has_calls(calls, any_order=True)
         assert 2 == mock_subp.call_count, "subprocess call should be equal to 2"
@@ -119,6 +123,7 @@ class TestCredentialsSchema(object):
               '        username: user',
               '        password: passwd',
               '        description: test username/password user',
+              '        id: this-is-credentials-id',
               '      ssh:',
               '      - scope: global',
               '        username: user2',
@@ -135,7 +140,8 @@ class TestCredentialsSchema(object):
               '      - scope: global',
               '        username: user',
               '        password: passwd',
-              '        description: test username/password user'
+              '        description: test username/password user',
+              '        id: this-is-credentials-id'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -174,7 +180,8 @@ class TestCredentialsSchema(object):
               '      ssh:',
               '      - scope: test',
               '        username: user2',
-              '        private_key: /home/user/.ssh/id_rsa'
+              '        private_key: /home/user/.ssh/id_rsa',
+              '        id: this-is-credentials-id'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -189,7 +196,24 @@ class TestCredentialsSchema(object):
               '      - scope: global',
               '        username: 123',
               '        password: passwd',
-              '        description: test username/password user'
+              '        description: test username/password user',
+              '        id: this-is-credentials-id'
+            ])
+        })
+        repo_data = yaml_reader.read(jenkins_yaml_path)
+        with pytest.raises(jsonschema.ValidationError) as excinfo:
+            jsonschema.validate(repo_data, self.schema)
+        assert excinfo.value.message == "123 is not of type 'string'"
+
+    def test_validation_fail_if_id_is_not_string(self):
+        self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
+            [
+              '      password:',
+              '      - scope: global',
+              '        username: user',
+              '        password: passwd',
+              '        description: test username/password user',
+              '        id: 123'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)

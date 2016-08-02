@@ -47,7 +47,12 @@ class Actions {
     )
   }
 
-  void update_credentials(String scope, String username, String password="", String description="", String private_key="") {
+  void update_credentials(String scope,
+                          String username,
+                          String password="",
+                          String description="",
+                          String private_key="",
+                          String id="") {
 
     //removing '' quotes, jenkins cli bug workaround
     scope = scope.replaceAll('^\'|\'$', '')
@@ -55,6 +60,7 @@ class Actions {
     password = password.replaceAll('^\'|\'$', '')
     description = description.replaceAll('^\'|\'$', '')
     private_key = private_key.replaceAll('^\'|\'$', '')
+    id = id.replaceAll('^\'|\'$', '')
 
     def global_domain = Domain.global()
     def credentials_store =
@@ -73,7 +79,7 @@ class Actions {
     if (private_key == "" ) {
       credentials = new UsernamePasswordCredentialsImpl(
         credentials_scope,
-        null,
+        id,
         description,
         username,
         password
@@ -89,7 +95,7 @@ class Actions {
       }
       credentials = new BasicSSHUserPrivateKey(
         credentials_scope,
-        null,
+        id,
         username,
         key_source,
         password,

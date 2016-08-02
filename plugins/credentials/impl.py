@@ -23,6 +23,7 @@ class Credentials(BaseGroovyPlugin):
         data = self._tree_read(source, self.source_tree_path)
         if "password" in data:
             for p in data["password"]:
+                cred_id = p.get("id", "")
                 description = p.get("description", "")
                 try:
                     subprocess.call(["java",
@@ -34,13 +35,16 @@ class Credentials(BaseGroovyPlugin):
                                      "'{0}'".format(p["scope"]),  # jenkins-cli bug workaround
                                      "'{0}'".format(p["username"]),
                                      "'{0}'".format(p["password"]),
-                                     "'{0}'".format(description)
+                                     "'{0}'".format(description),
+                                     "''",  # place for a private_key
+                                     "'{0}'".format(cred_id)
                                      ], shell=False)
                 except OSError:
                     self.logger.exception('Could not find java')
 
         if "ssh" in data:
             for s in data["ssh"]:
+                cred_id = s.get("id", "")
                 passphrase = s.get("passphrase", "")
                 description = s.get("description", "")
                 try:
@@ -54,7 +58,8 @@ class Credentials(BaseGroovyPlugin):
                                      "'{0}'".format(s["username"]),
                                      "'{0}'".format(passphrase),
                                      "'{0}'".format(description),
-                                     "'{0}'".format(s["private_key"])
+                                     "'{0}'".format(s["private_key"]),
+                                     "'{0}'".format(cred_id)
                                      ], shell=False)
                 except OSError:
                     self.logger.exception('Could not find java')
