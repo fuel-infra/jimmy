@@ -23,43 +23,12 @@ class JenkinsConfiguration(BaseGroovyPlugin):
 
     def update_dest(self, source, jenkins_url, jenkins_cli_path, **kwargs):
         data = self._tree_read(source, self.source_tree_path)
-        if "security_type" in data:
-            if data["security_type"] == "password":
-                for u in data["admin_user"]:
-                    try:
-                        subprocess.call(["java",
-                                         "-jar", jenkins_cli_path,
-                                         "-s", jenkins_url,
-                                         "groovy",
-                                         self.groovy_path,
-                                         "set_security_password",
-                                         u["username"],
-                                         "'{0}'".format(u["email"]),
-                                         u["password"],
-                                         "'{0}'".format(u["name"]),
-                                         "'{0}'".format(u["public_key"])
-                                         ], shell=False)
-                    except OSError:
-                        self.logger.exception('Could not find java')
-            elif data["security_type"] == "unsecured":
-                try:
-                    subprocess.call(["java",
-                                     "-jar", jenkins_cli_path,
-                                     "-s", jenkins_url,
-                                     "groovy",
-                                     self.groovy_path,
-                                     "set_unsecured"
-                                     ], shell=False)
-                except OSError:
-                    self.logger.exception('Could not find java')
-
         try:
             subprocess.call(["java",
                              "-jar", jenkins_cli_path,
                              "-s", jenkins_url,
                              "groovy",
                              self.groovy_path,
-                             "set_main_configuration",
                              "'{0}'".format(data["admin_email"]),  # jenkins-cli bug workaround
                              data["markup_format"],
                              str(data["num_of_executors"]),
