@@ -29,6 +29,9 @@ config = {
     'name': 'jim',
     'version': '0.1',
 
+    'author': 'Mirantis',
+    'author_email': 'infra@mirantis.com',
+
     'description': 'Update jenkins configuration using YAML',
 
     'url': 'https://github.com/fuel-infra/jim',
