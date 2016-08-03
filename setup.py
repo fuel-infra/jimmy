@@ -67,7 +67,8 @@ config = {
         'plugins': ['credentials/resources/*',
                     'gerrit/resources/*',
                     'gearman/resources/*',
-                    'jenkins_configuration/resources/*'],
+                    'jenkins_configuration/resources/*',
+                    'throttle/resources/*'],
     },
     'py_modules': ['jim'],
     'entry_points': {

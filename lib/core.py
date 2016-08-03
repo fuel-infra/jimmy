@@ -18,6 +18,7 @@ import importlib
 from itertools import chain
 import logging
 import os
+from pkg_resources import resource_filename
 import sys
 
 from lib.api import Plugin, BaseGroovyPlugin
@@ -197,11 +198,22 @@ class Runner(TreeHelpersMixin, ReadersMixin, LoggerMixin):
         self.logger.debug('Setup env')
         self.ctx['env'].update(self._tree_read(self.config, ['envs', self.env_name], {}))
 
+    def get_default_plugins_path(self):
+        """Get default plugins"""
+
+        resource_package = __name__
+        plugins_dir = '../plugins'
+        default_plugins_path = os.path.abspath(resource_filename(resource_package, plugins_dir))
+
+        return default_plugins_path
+
     def load_plugins(self):
         """Loading plugins"""
 
         self.logger.info('Loading Plugins')
         plugin_paths = self._tree_read(self.config, ['plugin-directories'], [])
+        if self._tree_read(self.config, ['include-default-plugins'], True):
+            plugin_paths.append(self.get_default_plugins_path())
         self.plugins.extend([p() for p in load_plugins(*plugin_paths)])
 
     def execute_steps(self):

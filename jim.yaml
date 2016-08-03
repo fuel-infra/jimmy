@@ -1,3 +1,5 @@
+include-default-plugins: false
+
 plugin-directories:
   - ./plugins
 
@@ -17,8 +19,8 @@ pipelines:
     - name: read_source
       description: |
         Read source file with Jenkins configuration
-      params:
-        path: sample/input/jenkins.yaml
+      inject:
+        path: env.jenkins_config_path
 
     - name: build_source
       description: |
@@ -52,3 +54,4 @@ pipelines:
 envs:
   main:
     jenkins_url: http://localhost:8080
+    jenkins_config_path: sample/input/jenkins.yaml

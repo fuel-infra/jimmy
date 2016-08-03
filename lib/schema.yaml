@@ -93,6 +93,12 @@ definitions:
 
 properties:
 
+  include-default-plugins:
+    description: |
+      Use default set of plugins packaged with Jim.
+    type: boolean
+    default: true
+
   plugin-directories:
     description: path for searching Jim plugins
     type: array
