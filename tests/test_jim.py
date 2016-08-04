@@ -23,41 +23,41 @@ import jsonschema
 from lib.common import yaml_reader
 from tests import base
 
-jim_dir = os.path.dirname(os.path.dirname(__file__))
-jim_schema_path = os.path.join(jim_dir, 'lib', 'schema.yaml')
-jim_yaml_path = os.path.join(jim_dir, 'jim.yaml')
+jimmy_dir = os.path.dirname(os.path.dirname(__file__))
+jimmy_schema_path = os.path.join(jimmy_dir, 'lib', 'schema.yaml')
+jimmy_yaml_path = os.path.join(jimmy_dir, 'jimmy.yaml')
 
 
-class TestJimSchema(base.TestCase):
+class TestJimmySchema(base.TestCase):
 
     def teardown_method(self, method):
         mockfs.restore_builtins()
 
     def test_valid_repo_data(self):
         self.mfs = mockfs.replace_builtins()
-        self.mfs.add_entries({jim_schema_path: self.jim_schema,
-                              jim_yaml_path: self.mock_jim_yaml})
-        schema = yaml_reader.read(jim_schema_path)
-        repo_data = yaml_reader.read(jim_yaml_path)
+        self.mfs.add_entries({jimmy_schema_path: self.jimmy_schema,
+                              jimmy_yaml_path: self.mock_jimmy_yaml})
+        schema = yaml_reader.read(jimmy_schema_path)
+        repo_data = yaml_reader.read(jimmy_yaml_path)
         jsonschema.validate(repo_data, schema)
 
     def test_validation_fail_for_envs_required_property(self):
-        with open(jim_yaml_path, 'r') as f:
-            jim_yaml = f.read()
-            mock_jim_yaml = jim_yaml.replace("envs:", "")
+        with open(jimmy_yaml_path, 'r') as f:
+            jimmy_yaml = f.read()
+            mock_jimmy_yaml = jimmy_yaml.replace("envs:", "")
         self.mfs = mockfs.replace_builtins()
-        self.mfs.add_entries({jim_yaml_path: mock_jim_yaml,
-                              jim_schema_path: self.jim_schema})
-        schema = yaml_reader.read(jim_schema_path)
-        jim_yaml_data = yaml_reader.read(jim_yaml_path)
+        self.mfs.add_entries({jimmy_yaml_path: mock_jimmy_yaml,
+                              jimmy_schema_path: self.jimmy_schema})
+        schema = yaml_reader.read(jimmy_schema_path)
+        jimmy_yaml_data = yaml_reader.read(jimmy_yaml_path)
         with pytest.raises(jsonschema.ValidationError) as excinfo:
-            jsonschema.validate(jim_yaml_data, schema)
+            jsonschema.validate(jimmy_yaml_data, schema)
         assert excinfo.value.message == "'envs' is a required property"
 
     def test_validation_fail_for_pipelines_required_property(self):
         self.mfs = mockfs.replace_builtins()
-        self.mfs.add_entries({jim_schema_path: self.jim_schema,
-                              jim_yaml_path: '\n'.join(
+        self.mfs.add_entries({jimmy_schema_path: self.jimmy_schema,
+                              jimmy_yaml_path: '\n'.join(
                                   [
                                       'plugin-directories:',
                                       '  - ./plugins',
@@ -73,21 +73,21 @@ class TestJimSchema(base.TestCase):
                                       '    jenkins_url: http://localhost:8080'
                                   ])
                               })
-        schema = yaml_reader.read(jim_schema_path)
-        jim_yaml_data = yaml_reader.read(jim_yaml_path)
+        schema = yaml_reader.read(jimmy_schema_path)
+        jimmy_yaml_data = yaml_reader.read(jimmy_yaml_path)
         with pytest.raises(jsonschema.ValidationError) as excinfo:
-            jsonschema.validate(jim_yaml_data, schema)
+            jsonschema.validate(jimmy_yaml_data, schema)
         assert excinfo.value.message == "'pipelines' is a required property"
 
     def test_validation_fail_for_additional_properties(self):
-        with open(jim_yaml_path, 'r') as f:
-            jim_yaml = f.read()
-            mock_jim_yaml = jim_yaml.replace("plugin-directories:", "test:")
+        with open(jimmy_yaml_path, 'r') as f:
+            jimmy_yaml = f.read()
+            mock_jimmy_yaml = jimmy_yaml.replace("plugin-directories:", "test:")
         self.mfs = mockfs.replace_builtins()
-        self.mfs.add_entries({jim_yaml_path: mock_jim_yaml,
-                              jim_schema_path: self.jim_schema})
-        schema = yaml_reader.read(jim_schema_path)
-        jim_yaml_data = yaml_reader.read(jim_yaml_path)
+        self.mfs.add_entries({jimmy_yaml_path: mock_jimmy_yaml,
+                              jimmy_schema_path: self.jimmy_schema})
+        schema = yaml_reader.read(jimmy_schema_path)
+        jimmy_yaml_data = yaml_reader.read(jimmy_yaml_path)
         with pytest.raises(jsonschema.ValidationError) as excinfo:
-            jsonschema.validate(jim_yaml_data, schema)
+            jsonschema.validate(jimmy_yaml_data, schema)
         assert excinfo.value.message == "Additional properties are not allowed ('test' was unexpected)"

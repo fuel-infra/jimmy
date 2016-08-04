@@ -135,7 +135,7 @@ class Runner(TreeHelpersMixin, ReadersMixin, LoggerMixin):
         self.execute_steps()
 
     def read_conf(self):
-        """Read jim yaml configuration file and validate it using schema"""
+        """Read jimmy yaml configuration file and validate it using schema"""
 
         self.config.update(self.yaml_reader.read(self.conf_path))
         schema = self.yaml_reader.read(self.schema_path)
@@ -145,7 +145,7 @@ class Runner(TreeHelpersMixin, ReadersMixin, LoggerMixin):
             self.logger.error('Config is not valid: "{}", path: "{}"'.format(e.message, '.'.join(map(str, e.path))))
 
     def build_steps(self):
-        """Build pipeline, steps from jim yaml configuration file"""
+        """Build pipeline, steps from jimmy yaml configuration file"""
 
         pipeline = self._tree_read(self.config, ['pipelines', self.pipeline_name])
 

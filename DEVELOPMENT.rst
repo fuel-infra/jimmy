@@ -1,21 +1,21 @@
-Jim is a command line tool for managing jenkins configuration through the simple
+Jimmy is a command line tool for managing jenkins configuration through the simple
 descriptions in YAML format.
 
 
 Repo Structure
 ==============
 
-``jim.py``
+``jimmy.py``
 
   Main executable script.
 
-``jim.yaml``
+``jimmy.yaml``
 
   Main configuration file containing parameters and steps to invoke.
 
 ``requirements.txt``
 
-  Python requirements to run Jim.
+  Python requirements to run Jimmy.
 
 ``sample/input/jenkins.yaml``
 
@@ -31,8 +31,8 @@ Repo Structure
 
 ``plugins/plugin-name/``
 
-  Each plugin is python module or package. Jim itself is just a runner which performs some pipelines
-  specified by jim configuration and script parameters. Every other functionality is implemented as
+  Each plugin is python module or package. Jimmy itself is just a runner which performs some pipelines
+  specified by jimmy configuration and script parameters. Every other functionality is implemented as
   plugins (which may come with distribution or be added by end-user). For example, ``plugins/gearman/``
   package corresponds to Jenkins Gearman plugin configuration.
 
@@ -42,16 +42,16 @@ Repo Structure
   for plugin functionality.
 
 
-How Jim works
+How Jimmy works
 =============
 
-Jim is a runner which reads and then builds pipeline defined in main configuration file. Main configuration
-file jim.yaml consists of:
+Jimmy is a runner which reads and then builds pipeline defined in main configuration file. Main configuration
+file jimmy.yaml consists of:
 - pipelines and steps to perform
 - params or injected data for each step
 
-Jim Runner looks for plugins(modules) and loads them. Then invokes these modules(plugins) for each pipeline step
-defined in jim.yaml. The next steps included in jim.yaml:
+Jimmy Runner looks for plugins(modules) and loads them. Then invokes these modules(plugins) for each pipeline step
+defined in jimmy.yaml. The next steps included in jimmy.yaml:
 
   - read_source: Read source yaml file with Jenkins configuration
   - build_source: Build and post-process the initial configuration
@@ -65,12 +65,12 @@ Plugin description
 ==================
 The Plugin is a base class which gives possibility to easily add other python modules or packages.
 This Plugin contain default relative paths to resources for other modules and methods to read source schemas and
-validate YAML configuration for this plugin. To write such Plugin you have to add some step in jim.yaml
+validate YAML configuration for this plugin. To write such Plugin you have to add some step in jimmy.yaml
 configuration file and then create a method with such name as step name under the Plugin class. And then you can
 invoke this Plugin.
 Example:
 
-Pipeline step defined in jim.yaml:
+Pipeline step defined in jimmy.yaml:
 
 .. code-block:: yaml
 
@@ -94,7 +94,7 @@ Method definition in Plugin class:
 In this example if the validation fails, the method returns an error.
 
 
-Plugin should return dict with unique keys (if they aren't unique, jim will error about it). This dict could be used in further
+Plugin should return dict with unique keys (if they aren't unique, jimmy will error about it). This dict could be used in further
 steps by injecting merged dict of all returned values from all plugins.
 
 Example:
@@ -148,12 +148,12 @@ Installation
   $ cd work_folder && virtualenv venv
   $ source venv/bin/activate
 
-2) Clone Jim repo:
+2) Clone Jimmy repo:
 
 .. code-block:: bash
 
-  $ git clone https://review.fuel-infra.org/fuel-infra/jim
-  $ cd jim
+  $ git clone https://review.fuel-infra.org/fuel-infra/jimmy
+  $ cd jimmy
 
 3) Install the required python packages using pip
 
@@ -166,7 +166,7 @@ Configuration file
 ==================
 
 After installation, you will need to specify jenkins_url and path to jenkins_cli in main configuration
-file jim.yaml located in the root of jim directory.
+file jimmy.yaml located in the root of jimmy directory.
 
 Configure path to Jenkins CLI:
 
@@ -188,7 +188,7 @@ Configure Jenkins URL:
 Running and Updating configuration
 ==================================
 
-After it’s installed, you can invoke Jim by running 'python jim.py'. Make sure that that you have
+After it’s installed, you can invoke Jimmy by running 'python jimmy.py'. Make sure that that you have
 a configured YAML definition of jenkins configuration and the user you are running from has permissions
 at Jenkins. Check that ssh keys configured properly(to establish connection with Jenkins via ssh keys).
 
@@ -196,7 +196,7 @@ at Jenkins. Check that ssh keys configured properly(to establish connection with
 Jenkins Configuration Definitions
 =================================
 
-Jenkins configuration is specified as yaml file(jenkins.yaml). Then Jim use it to update this configuration on jenkins.
+Jenkins configuration is specified as yaml file(jenkins.yaml). Then Jimmy use it to update this configuration on jenkins.
 The example of defined jenkins configuration in a yaml file:
 
 .. code-block:: yaml
@@ -278,7 +278,7 @@ Merge configs and yamls:
   gerrit:
     servers:
         !merge:
-          - !include-yaml:  jim-configs/includes/gerrit-trigger.yaml
+          - !include-yaml:  jimmy-configs/includes/gerrit-trigger.yaml
           - !include-conf:  sample/input/admin.cfg
 
 

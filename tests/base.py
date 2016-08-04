@@ -18,17 +18,17 @@
 
 import os
 
-jim_dir = os.path.dirname(os.path.dirname(__file__))
+jimmy_dir = os.path.dirname(os.path.dirname(__file__))
 
 
 class TestCase(object):
 
     """Test case base class for all unit tests."""
     def setup(self):
-        with open(os.path.join(jim_dir, 'lib', 'schema.yaml'), 'r') as f:
-            self.jim_schema = f.read()
-        with open(os.path.join(jim_dir, 'jim.yaml'), 'r') as f:
-            self.jim_yaml = f.read()
-            self.mock_jim_yaml = self.jim_yaml.replace(
+        with open(os.path.join(jimmy_dir, 'lib', 'schema.yaml'), 'r') as f:
+            self.jimmy_schema = f.read()
+        with open(os.path.join(jimmy_dir, 'jimmy.yaml'), 'r') as f:
+            self.jimmy_yaml = f.read()
+            self.mock_jimmy_yaml = self.jimmy_yaml.replace(
                 "jenkins_cli_path: /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar",
                 "jenkins_cli_path: << path to jenkins-cli.jar >>")

@@ -16,7 +16,7 @@
 #    with this program; if not, write to the Free Software Foundation, Inc.,
 #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-PROJECT = 'jim'
+PROJECT = 'jimmy'
 
 VERSION = '0.1'
 
@@ -26,7 +26,7 @@ except ImportError:
     from distutils.core import setup
 
 config = {
-    'name': 'jim',
+    'name': 'jimmy',
     'version': '0.1',
 
     'author': 'Mirantis',
@@ -34,9 +34,9 @@ config = {
 
     'description': 'Update jenkins configuration using YAML',
 
-    'url': 'https://github.com/fuel-infra/jim',
+    'url': 'https://github.com/fuel-infra/jimmy',
 
-    'download_url': 'https://github.com/fuel-infra/jim',
+    'download_url': 'https://github.com/fuel-infra/jimmy',
 
     'classifiers': [
         'Development Status :: 5 - Production/Stable',
@@ -73,10 +73,10 @@ config = {
                     'jenkins_configuration/resources/*',
                     'throttle/resources/*'],
     },
-    'py_modules': ['jim'],
+    'py_modules': ['jimmy'],
     'entry_points': {
         'console_scripts': [
-            'jim = jim:cli',
+            'jimmy = jimmy:cli',
         ],
     },
 

@@ -22,16 +22,16 @@ import os
 import pytest
 import sys
 import jsonschema
-from jim import cli
+from jimmy import cli
 from mock import call
 from click.testing import CliRunner
 from lib.common import yaml_reader
 from tests import base
 
 plugins_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-jim_dir = os.path.dirname(plugins_dir)
+jimmy_dir = os.path.dirname(plugins_dir)
 gerrit_schema_path = os.path.join(plugins_dir, 'gerrit', 'resources', 'schema.yaml')
-jenkins_yaml_path = os.path.join(jim_dir, 'sample', 'input', 'jenkins.yaml')
+jenkins_yaml_path = os.path.join(jimmy_dir, 'sample', 'input', 'jenkins.yaml')
 
 
 class TestGerritPlugin(base.TestCase):
@@ -48,8 +48,8 @@ class TestGerritPlugin(base.TestCase):
         with open(gerrit_schema_path, 'r') as f:
             mock_gerrit_schema = f.read()
         self.mfs = mockfs.replace_builtins()
-        self.mfs.add_entries({os.path.join(jim_dir, 'lib', 'schema.yaml'): self.jim_schema,
-                              os.path.join(jim_dir, 'jim.yaml'): self.mock_jim_yaml,
+        self.mfs.add_entries({os.path.join(jimmy_dir, 'lib', 'schema.yaml'): self.jimmy_schema,
+                              os.path.join(jimmy_dir, 'jimmy.yaml'): self.mock_jimmy_yaml,
                               gerrit_schema_path: mock_gerrit_schema,
                               jenkins_yaml_path: '\n'.join(
                                   [
@@ -74,7 +74,7 @@ class TestGerritPlugin(base.TestCase):
         import read_source
         sys.path.pop(0)
         mock_modules.return_value = [gerrit, read_source]
-        os.chdir(jim_dir)
+        os.chdir(jimmy_dir)
         self.runner.invoke(cli)
         calls = [call(['java',
                        '-jar', '<< path to jenkins-cli.jar >>',

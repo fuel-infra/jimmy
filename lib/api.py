@@ -69,7 +69,7 @@ class BaseGroovyPlugin(Plugin):
         Most of the plugins do require some configuration subtree on config.
         If there are no required configuration, then plugin could not be applied.
 
-        :param source: jim config
+        :param source: jimmy config
         :type source: dict
 
         :rtype: None

@@ -32,7 +32,7 @@ logger = logging.getLogger()
     type=click.Choice(LOG_LEVELS_NAMES_LOWER))
 @click.option(
     '-c', '--conf-path',
-    default='jim.yaml',
+    default='jimmy.yaml',
     type=click.Path(exists=True))
 @click.option(
     '-e', '--env-name',

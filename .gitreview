@@ -1,4 +1,4 @@
 [gerrit]
 host=review.fuel-infra.org
 port=29418
-project=fuel-infra/jim.git
+project=fuel-infra/jimmy.git

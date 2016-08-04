@@ -1,4 +1,4 @@
-Jim is a command line tool to manage Jenkins Master configuration,
+Jimmy is a command line tool to manage Jenkins Master configuration,
 including Jenkins plugin parameters like Gerrit URL for Gerrit Trigger
 plugin or global credentials.
 
@@ -7,10 +7,10 @@ See `./plugins/` directory for full list of supported plugins.
 How to use
 ==========
 
-#. Clone Jim repo::
+#. Clone Jimmy repo::
 
-     $ git clone https://review.fuel-infra.org/fuel-infra/jim
-     $ cd jim
+     $ git clone https://review.fuel-infra.org/fuel-infra/jimmy
+     $ cd jimmy
 
 #. Setup venv::
 
@@ -26,7 +26,7 @@ How to use
 #. Create YAML file `my_jenkins.yaml` with jenkins parameters. Check
    `./samples/input/jenkins.yaml` for example.
 
-#. Define env (Jenkins instance) in jim.yaml::
+#. Define env (Jenkins instance) in jimmy.yaml::
 
      envs:
        my_jenkins:
@@ -35,7 +35,7 @@ How to use
 
 #. Run::
 
-     $ python jim.py --conf-path jim.yaml -e my_jenkins
+     $ python jimmy.py --conf-path jimmy.yaml -e my_jenkins
 
 Contacts
 ========
@@ -43,7 +43,7 @@ Contacts
 Tool is maintained by `Fuel Infra <https://wiki.openstack.org/wiki/Fuel>`_ team.
 
 * IRC: #fuel at Freenode.
-* Bugs: `Fuel project in Launchpad <https://bugs.launchpad.net/fuel/>`_, use tag `jim`.
+* Bugs: `Fuel project in Launchpad <https://bugs.launchpad.net/fuel/>`_, use tag `jimmy`.
 
 
 

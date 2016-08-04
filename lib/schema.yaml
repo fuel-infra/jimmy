@@ -1,4 +1,4 @@
-title: Schema of Jim configuration file
+title: Schema of Jimmy configuration file
 $schema: http://json-schema.org/draft-04/schema#
 type: object
 additionalProperties: false
@@ -95,12 +95,12 @@ properties:
 
   include-default-plugins:
     description: |
-      Use default set of plugins packaged with Jim.
+      Use default set of plugins packaged with Jimmy.
     type: boolean
     default: true
 
   plugin-directories:
-    description: path for searching Jim plugins
+    description: path for searching Jimmy plugins
     type: array
     items:
       type: string
