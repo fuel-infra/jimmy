@@ -28,7 +28,6 @@ import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials
 import com.cloudbees.plugins.credentials.domains.SchemeRequirement
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl
 import com.sonyericsson.hudson.plugins.gerrit.trigger.PluginImpl
-import com.synopsys.arc.jenkins.plugins.ownership.OwnershipPlugin
 import hudson.scm.SCM
 
 
@@ -106,9 +105,6 @@ class Actions {
     for (Permission p : PluginImpl.PERMISSION_GROUP.getPermissions()) {
       strategy.add(p,ldapuser)
     }
-    for (Permission p : OwnershipPlugin.PERMISSIONS.getPermissions()) {
-      strategy.add(p,ldapuser)
-    }
     for (Permission p : SCM.PERMISSIONS.getPermissions()) {
       strategy.add(p,ldapuser)
     }
@@ -133,7 +129,7 @@ class Actions {
     instance.save()
   }
 
-  void set_security_password(String user, String pub_keys=null, String email=null, String password=null, String name=null) {
+  void set_security_password(String user, String pub_keys=null, String password=null, String email=null, String name=null) {
     def instance = Jenkins.getInstance()
     def overwrite_permissions
     def strategy
@@ -160,9 +156,6 @@ class Actions {
       strategy.add(p,user)
     }
     for (Permission p : PluginImpl.PERMISSION_GROUP.getPermissions()) {
-      strategy.add(p,user)
-    }
-    for (Permission p : OwnershipPlugin.PERMISSIONS.getPermissions()) {
       strategy.add(p,user)
     }
     for (Permission p : SCM.PERMISSIONS.getPermissions()) {
@@ -230,11 +223,6 @@ class Actions {
     }
     if (perms.contains("gerrit")) {
       for (Permission p : PluginImpl.PERMISSION_GROUP.getPermissions()) {
-        strategy.add(p,user)
-      }
-    }
-    if (perms.contains("manage-ownership")) {
-      for (Permission p : OwnershipPlugin.PERMISSIONS.getPermissions()) {
         strategy.add(p,user)
       }
     }

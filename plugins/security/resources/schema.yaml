@@ -192,10 +192,18 @@ properties:
     properties:
 
       name:
+        description: CLI user username.
         type: string
 
       public_key:
+        description: CLI user public key.
         type: string
+
+      password:
+        #CLI user password is required for password-based authentication.
+        description: CLI user password.
+        type: string
+
     additionalProperties: false
     required:
     - name

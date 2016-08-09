@@ -140,7 +140,8 @@ class TestSecurityPlugin(base.TestCase):
                                     '        - gerrit',
                                     '    cli_user:',
                                     '      name: jenkins-manager',
-                                    '      public_key: sssh-rsa AAAAB3NzaC'
+                                    '      public_key: sssh-rsa AAAAB3NzaC',
+                                    '      password: password'
                                   ])
                               })
         sys.path.insert(0, plugins_dir)
@@ -156,7 +157,8 @@ class TestSecurityPlugin(base.TestCase):
                        plugins_dir + '/' + 'security/resources/jenkins.groovy',
                        'set_security_password',
                        'jenkins-manager',
-                       'sssh-rsa AAAAB3NzaC'],
+                       'sssh-rsa AAAAB3NzaC',
+                       'password'],
                       shell=False),
                  call(['java',
                        '-jar', '<< path to jenkins-cli.jar >>',
