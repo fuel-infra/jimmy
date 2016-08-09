@@ -32,8 +32,8 @@ class Actions {
   def out
 
 
-  private credentials_for_username(String username) {
-    def username_matcher = CredentialsMatchers.withUsername(username)
+  private credentials_for_user(String id, String username) {
+    def matcher
     def available_credentials =
       CredentialsProvider.lookupCredentials(
         StandardUsernameCredentials.class,
@@ -41,10 +41,16 @@ class Actions {
         hudson.security.ACL.SYSTEM,
         new SchemeRequirement("ssh")
       )
-    return CredentialsMatchers.firstOrNull(
+    if (id != "") {
+      matcher = CredentialsMatchers.withId(id)
+    } else {
+      matcher = CredentialsMatchers.withUsername(username)
+    }
+    def matched = CredentialsMatchers.firstOrNull(
       available_credentials,
-      username_matcher
+      matcher
     )
+    return matched
   }
 
   void update_credentials(String scope,
@@ -103,7 +109,7 @@ class Actions {
       )
     }
     // Create or update the credentials in the Jenkins instance
-    def existing_credentials = credentials_for_username(username)
+    def existing_credentials = credentials_for_user(id, username)
     if(existing_credentials != null) {
       credentials_store.updateCredentials(
         global_domain,
