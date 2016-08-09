@@ -57,7 +57,8 @@ class Security(BaseGroovyPlugin):
                                  self.groovy_path,
                                  "set_security_password",
                                  data["cli_user"]["name"],
-                                 data["cli_user"]["public_key"]
+                                 data["cli_user"]["public_key"],
+                                 data["cli_user"]["password"]
                                  ], shell=False)
             except OSError:
                 self.logger.exception('Could not find java')
