@@ -18,7 +18,7 @@
 
 PROJECT = 'jimmy'
 
-VERSION = '0.1'
+VERSION = '0.2'
 
 try:
     from setuptools import setup, find_packages
@@ -27,7 +27,7 @@ except ImportError:
 
 config = {
     'name': 'jimmy',
-    'version': '0.1',
+    'version': '0.2',
 
     'author': 'Mirantis',
     'author_email': 'infra@mirantis.com',
