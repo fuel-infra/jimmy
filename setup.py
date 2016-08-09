@@ -64,13 +64,13 @@ config = {
     ],
 
     'packages': find_packages(),
-    'include_package_data': True,
     'package_data': {
         'lib': ['schema.yaml'],
         'plugins': ['credentials/resources/*',
                     'gerrit/resources/*',
                     'gearman/resources/*',
                     'jenkins_configuration/resources/*',
+                    'security/resources/*',
                     'throttle/resources/*'],
     },
     'py_modules': ['jimmy'],
