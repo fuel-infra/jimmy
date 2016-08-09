@@ -54,20 +54,19 @@ class TestThrottlePlugin(base.TestCase):
                               jenkins_yaml_path: '\n'.join(
                                   [
                                       'jenkins:',
-                                      '  plugins:',
-                                      '    throttle:',
-                                      '      categories:',
-                                      '      - category_name: category1',
-                                      '        max_total_concurrent_builds: 1',
-                                      '        max_concurrent_bulds_per_node: 0',
-                                      '        max_per_labeled_node:',
-                                      '        - throttled_node_label: slave-label1',
-                                      '          max_concurrent_per_labeled: 1',
-                                      '        - throttled_node_label: slave-label2',
-                                      '          max_concurrent_per_labeled: 1',
-                                      '      - category_name: category2',
-                                      '        max_total_concurrent_builds: 1',
-                                      '        max_concurrent_bulds_per_node: 0'
+                                      '  throttle:',
+                                      '    categories:',
+                                      '    - category_name: category1',
+                                      '      max_total_concurrent_builds: 1',
+                                      '      max_concurrent_bulds_per_node: 0',
+                                      '      max_per_labeled_node:',
+                                      '      - throttled_node_label: slave-label1',
+                                      '        max_concurrent_per_labeled: 1',
+                                      '      - throttled_node_label: slave-label2',
+                                      '        max_concurrent_per_labeled: 1',
+                                      '    - category_name: category2',
+                                      '      max_total_concurrent_builds: 1',
+                                      '      max_concurrent_bulds_per_node: 0'
                                   ])
                               })
         sys.path.insert(0, plugins_dir)

@@ -5,60 +5,59 @@ jenkins:
     num_of_executors: 2
     scm_checkout_retry_count: 1
 
-  plugins:
-    gearman:
-      enable: true
-      host: zuul01-test.example.com
-      port: 4730
+  credentials:
+    password:
+    - scope: global
+      username: user
+      password: !import-from-cfg:
+        sample/input/secret/admin.cfg:secret_1:password
+      description: test username/password user
+    ssh:
+    - scope: global
+      username: user2
+      private_key: /home/user/.ssh/id_rsa
+    - scope: global
+      username: user3
+      passphrase: psphrs
+      description: SSH username with private key from the Jenkins master ~/.ssh
+      private_key: from-jenkins-ssh-dir
+    - scope: system
+      username: user4
+      description: SSH Username with private key entered directly
+      private_key: !include-relative-text:
+        secret/admin.key
 
-    gerrit:
-      servers:
-      - servername: test-gerrit-name
-        hostname: test-hostname
-        username: test-username
-        url: http://test.com
-        auth_key: /var/lib/jenkins/.ssh/id_rsa
-      - servername: test-gerrit-name2
-        hostname: test-hostname2
-        username: test-username2
-        url: http://test.com2
-        auth_key: /var/lib/jenkins/.ssh/id_rsa
+  gearman:
+    enable: true
+    host: zuul01-test.example.com
+    port: 4730
 
-    credentials:
-      password:
-      - scope: global
-        username: user
-        password: !import-from-cfg:
-          sample/input/secret/admin.cfg:secret_1:password
-        description: test username/password user
-      ssh:
-      - scope: global
-        username: user2
-        private_key: /home/user/.ssh/id_rsa
-      - scope: global
-        username: user3
-        passphrase: psphrs
-        description: SSH username with private key from the Jenkins master ~/.ssh
-        private_key: from-jenkins-ssh-dir
-      - scope: system
-        username: user4
-        description: SSH Username with private key entered directly
-        private_key: !include-relative-text:
-          secret/admin.key
+  gerrit:
+    servers:
+    - servername: test-gerrit-name
+      hostname: test-hostname
+      username: test-username
+      url: http://test.com
+      auth_key: /var/lib/jenkins/.ssh/id_rsa
+    - servername: test-gerrit-name2
+      hostname: test-hostname2
+      username: test-username2
+      url: http://test.com2
+      auth_key: /var/lib/jenkins/.ssh/id_rsa
 
-    throttle:
-      categories:
-      - category_name: category1
-        max_total_concurrent_builds: 1
-        max_concurrent_bulds_per_node: 0
-        max_per_labeled_node:
-        - throttled_node_label: slave-label1
-          max_concurrent_per_labeled: 1
-        - throttled_node_label: slave-label2
-          max_concurrent_per_labeled: 1
-      - category_name: category2
-        max_total_concurrent_builds: 1
-        max_concurrent_bulds_per_node: 0
+  throttle:
+    categories:
+    - category_name: category1
+      max_total_concurrent_builds: 1
+      max_concurrent_bulds_per_node: 0
+      max_per_labeled_node:
+      - throttled_node_label: slave-label1
+        max_concurrent_per_labeled: 1
+      - throttled_node_label: slave-label2
+        max_concurrent_per_labeled: 1
+    - category_name: category2
+      max_total_concurrent_builds: 1
+      max_concurrent_bulds_per_node: 0
 
   security:
     ldap:

@@ -54,18 +54,17 @@ class TestCredentialsPlugin(base.TestCase):
                               jenkins_yaml_path: '\n'.join(
                                   [
                                       'jenkins:',
-                                      '  plugins:',
-                                      '    credentials:',
-                                      '      password:',
-                                      '      - scope: global',
-                                      '        username: user',
-                                      '        password: passwd',
-                                      '        description: test username/password user',
-                                      '      ssh:',
-                                      '      - scope: global',
-                                      '        username: user2',
-                                      '        private_key: /home/user/.ssh/id_rsa',
-                                      '        id: this-is-an-id'
+                                      '  credentials:',
+                                      '    password:',
+                                      '    - scope: global',
+                                      '      username: user',
+                                      '      password: passwd',
+                                      '      description: test username/password user',
+                                      '    ssh:',
+                                      '    - scope: global',
+                                      '      username: user2',
+                                      '      private_key: /home/user/.ssh/id_rsa',
+                                      '      id: this-is-an-id'
                                   ])
                               })
         sys.path.insert(0, plugins_dir)
@@ -118,16 +117,16 @@ class TestCredentialsSchema(object):
     def test_valid_repo_data(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              '      password:',
-              '      - scope: global',
-              '        username: user',
-              '        password: passwd',
-              '        description: test username/password user',
-              '        id: this-is-credentials-id',
-              '      ssh:',
-              '      - scope: global',
-              '        username: user2',
-              '        private_key: /home/user/.ssh/id_rsa'
+              '    password:',
+              '    - scope: global',
+              '      username: user',
+              '      password: passwd',
+              '      description: test username/password user',
+              '      id: this-is-credentials-id',
+              '    ssh:',
+              '    - scope: global',
+              '      username: user2',
+              '      private_key: /home/user/.ssh/id_rsa'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -136,12 +135,12 @@ class TestCredentialsSchema(object):
     def test_valid_oneof_password_data(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              '      password:',
-              '      - scope: global',
-              '        username: user',
-              '        password: passwd',
-              '        description: test username/password user',
-              '        id: this-is-credentials-id'
+              '    password:',
+              '    - scope: global',
+              '      username: user',
+              '      password: passwd',
+              '      description: test username/password user',
+              '      id: this-is-credentials-id'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -150,10 +149,10 @@ class TestCredentialsSchema(object):
     def test_valid_oneof_ssh_data(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              '      ssh:',
-              '      - scope: global',
-              '        username: user2',
-              '        private_key: /home/user/.ssh/id_rsa'
+              '    ssh:',
+              '    - scope: global',
+              '      username: user2',
+              '      private_key: /home/user/.ssh/id_rsa'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -162,11 +161,11 @@ class TestCredentialsSchema(object):
     def test_password_validation_fail_if_scope_is_not_enum(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              '      password:',
-              '      - scope: test',
-              '        username: user',
-              '        password: passwd',
-              '        description: test username/password user'
+              '    password:',
+              '    - scope: test',
+              '      username: user',
+              '      password: passwd',
+              '      description: test username/password user'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -177,11 +176,11 @@ class TestCredentialsSchema(object):
     def test_ssh_validation_fail_if_scope_is_not_enum(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              '      ssh:',
-              '      - scope: test',
-              '        username: user2',
-              '        private_key: /home/user/.ssh/id_rsa',
-              '        id: this-is-credentials-id'
+              '    ssh:',
+              '    - scope: test',
+              '      username: user2',
+              '      private_key: /home/user/.ssh/id_rsa',
+              '      id: this-is-credentials-id'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -192,12 +191,12 @@ class TestCredentialsSchema(object):
     def test_validation_fail_if_username_is_not_string(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              '      password:',
-              '      - scope: global',
-              '        username: 123',
-              '        password: passwd',
-              '        description: test username/password user',
-              '        id: this-is-credentials-id'
+              '    password:',
+              '    - scope: global',
+              '      username: 123',
+              '      password: passwd',
+              '      description: test username/password user',
+              '      id: this-is-credentials-id'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -208,12 +207,12 @@ class TestCredentialsSchema(object):
     def test_validation_fail_if_id_is_not_string(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              '      password:',
-              '      - scope: global',
-              '        username: user',
-              '        password: passwd',
-              '        description: test username/password user',
-              '        id: 123'
+              '    password:',
+              '    - scope: global',
+              '      username: user',
+              '      password: passwd',
+              '      description: test username/password user',
+              '      id: 123'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -224,11 +223,11 @@ class TestCredentialsSchema(object):
     def test_validation_fail_if_password_is_not_string(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              '      password:',
-              '      - scope: global',
-              '        username: user',
-              '        password: 123',
-              '        description: test username/password user'
+              '    password:',
+              '    - scope: global',
+              '      username: user',
+              '      password: 123',
+              '      description: test username/password user'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -239,11 +238,11 @@ class TestCredentialsSchema(object):
     def test_validation_fail_if_descr_is_not_string(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              '      password:',
-              '      - scope: global',
-              '        username: user',
-              '        password: passwd',
-              '        description: 123'
+              '    password:',
+              '    - scope: global',
+              '      username: user',
+              '      password: passwd',
+              '      description: 123'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -254,11 +253,11 @@ class TestCredentialsSchema(object):
     def test_validation_fail_if_passphrase_is_not_string(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              '      ssh:',
-              '      - scope: system',
-              '        username: user2',
-              '        passphrase: 123',
-              '        private_key: /home/user/.ssh/id_rsa'
+              '    ssh:',
+              '    - scope: system',
+              '      username: user2',
+              '      passphrase: 123',
+              '      private_key: /home/user/.ssh/id_rsa'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -269,11 +268,11 @@ class TestCredentialsSchema(object):
     def test_validation_fail_if_private_key_is_not_string(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              '      ssh:',
-              '      - scope: system',
-              '        username: user2',
-              '        passphrase: psprs',
-              '        private_key: 123'
+              '    ssh:',
+              '    - scope: system',
+              '      username: user2',
+              '      passphrase: psprs',
+              '      private_key: 123'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -284,10 +283,10 @@ class TestCredentialsSchema(object):
     def test_password_validation_fail_for_scope_required_property(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              '      password:',
-              '      - username: user',
-              '        password: passwd',
-              '        description: test username/password user'
+              '    password:',
+              '    - username: user',
+              '      password: passwd',
+              '      description: test username/password user'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -298,10 +297,10 @@ class TestCredentialsSchema(object):
     def test_password_validation_fail_for_username_property(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              '      password:',
-              '      - scope: global',
-              '        password: passwd',
-              '        description: test username/password user'
+              '    password:',
+              '    - scope: global',
+              '      password: passwd',
+              '      description: test username/password user'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -312,10 +311,10 @@ class TestCredentialsSchema(object):
     def test_password_validation_fail_for_password_required_property(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              '      password:',
-              '      - scope: global',
-              '        username: user',
-              '        description: test username/password user'
+              '    password:',
+              '    - scope: global',
+              '      username: user',
+              '      description: test username/password user'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -326,9 +325,9 @@ class TestCredentialsSchema(object):
     def test_ssh_validation_fail_for_scope_required_property(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              '      ssh:',
-              '      - username: user2',
-              '        private_key: /home/user/.ssh/id_rsa'
+              '    ssh:',
+              '    - username: user2',
+              '      private_key: /home/user/.ssh/id_rsa'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -339,9 +338,9 @@ class TestCredentialsSchema(object):
     def test_ssh_validation_fail_for_username_required_property(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              '      ssh:',
-              '      - scope: global',
-              '        private_key: /home/user/.ssh/id_rsa'
+              '    ssh:',
+              '    - scope: global',
+              '      private_key: /home/user/.ssh/id_rsa'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -352,9 +351,9 @@ class TestCredentialsSchema(object):
     def test_ssh_validation_fail_for_private_key_required_property(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              '      ssh:',
-              '      - scope: test',
-              '        username: user2'
+              '    ssh:',
+              '    - scope: test',
+              '      username: user2'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -387,12 +386,12 @@ class TestCredentialsSchema(object):
     def test_validation_fail_for_password_additional_properties(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              '      password:',
-              '      - scope: global',
-              '        username: user',
-              '        password: passwd',
-              '        description: test username/password user',
-              '        test: test'
+              '    password:',
+              '    - scope: global',
+              '      username: user',
+              '      password: passwd',
+              '      description: test username/password user',
+              '      test: test'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -403,11 +402,11 @@ class TestCredentialsSchema(object):
     def test_validation_fail_for_ssh_additional_properties(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              '      ssh:',
-              '      - scope: global',
-              '        username: user2',
-              '        private_key: /home/user/.ssh/id_rsa',
-              '        test: test'
+              '    ssh:',
+              '    - scope: global',
+              '      username: user2',
+              '      private_key: /home/user/.ssh/id_rsa',
+              '      test: test'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)

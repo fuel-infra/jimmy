@@ -17,7 +17,7 @@ from lib.api import BaseGroovyPlugin
 
 
 class Credentials(BaseGroovyPlugin):
-    source_tree_path = 'jenkins.plugins.credentials'
+    source_tree_path = 'jenkins.credentials'
 
     def update_dest(self, source, jenkins_url, jenkins_cli_path, **kwargs):
         data = self._tree_read(source, self.source_tree_path)

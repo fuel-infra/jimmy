@@ -202,24 +202,23 @@ The example of defined jenkins configuration in a yaml file:
 .. code-block:: yaml
 
   jenkins:
-    plugins:
-      gearman:
-        enable: true
-        host: zuul01-test.infra.mirantis.net
-        port: 4730
+    gearman:
+      enable: true
+      host: zuul01-test.infra.mirantis.net
+      port: 4730
 
-      gerrit:
-        servers:
-        - name: test-gerrit-name
-          hostname: test-hostname
-          username: test-username
-          url: http://test.com
-          auth_key: /var/lib/jenkins/.ssh/id_rsa
-        - name: test-gerrit-name2
-          hostname: test-hostname2
-          username: test-username2
-          url: http://test.com2
-          auth_key: /var/lib/jenkins/.ssh/id_rsa
+    gerrit:
+      servers:
+      - name: test-gerrit-name
+        hostname: test-hostname
+        username: test-username
+        url: http://test.com
+        auth_key: /var/lib/jenkins/.ssh/id_rsa
+      - name: test-gerrit-name2
+        hostname: test-hostname2
+        username: test-username2
+        url: http://test.com2
+        auth_key: /var/lib/jenkins/.ssh/id_rsa
 
 
 Importing and merging data in yaml definitions

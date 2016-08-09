@@ -19,7 +19,7 @@ from lib.api import BaseGroovyPlugin
 
 
 class ThrottleConcurrentPlugin(BaseGroovyPlugin):
-    source_tree_path = 'jenkins.plugins.throttle'
+    source_tree_path = 'jenkins.throttle'
 
     def update_dest(self, source, jenkins_url, jenkins_cli_path, **kwargs):
         data = self._tree_read(source, self.source_tree_path)

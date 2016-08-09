@@ -50,11 +50,10 @@ class TestGearmanPlugin(base.TestCase):
                               jenkins_yaml_path: '\n'.join(
                                   [
                                       'jenkins:',
-                                      '  plugins:',
-                                      '    gearman:',
-                                      '      enable: true',
-                                      '      host: test.infra.mirantis.net',
-                                      '      port: 4732'
+                                      '  gearman:',
+                                      '    enable: true',
+                                      '    host: test.infra.mirantis.net',
+                                      '    port: 4732'
                                   ])
                               })
         sys.path.insert(0, plugins_dir)

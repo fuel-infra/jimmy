@@ -54,19 +54,18 @@ class TestGerritPlugin(base.TestCase):
                               jenkins_yaml_path: '\n'.join(
                                   [
                                       'jenkins:',
-                                      '  plugins:',
-                                      '    gerrit:',
-                                      '      servers:',
-                                      '      - servername: test-gerrit-name',
-                                      '        hostname: test-hostname',
-                                      '        username: test-username',
-                                      '        url: http://test.com',
-                                      '        auth_key: /var/lib/jenkins/.ssh/id_rsa',
-                                      '      - servername: test-gerrit-name2',
-                                      '        hostname: test-hostname2',
-                                      '        username: test-username2',
-                                      '        url: http://test.com2',
-                                      '        auth_key: /var/lib/jenkins/.ssh/id_rsa2'
+                                      '  gerrit:',
+                                      '    servers:',
+                                      '    - servername: test-gerrit-name',
+                                      '      hostname: test-hostname',
+                                      '      username: test-username',
+                                      '      url: http://test.com',
+                                      '      auth_key: /var/lib/jenkins/.ssh/id_rsa',
+                                      '    - servername: test-gerrit-name2',
+                                      '      hostname: test-hostname2',
+                                      '      username: test-username2',
+                                      '      url: http://test.com2',
+                                      '      auth_key: /var/lib/jenkins/.ssh/id_rsa2'
                                   ])
                               })
         sys.path.insert(0, plugins_dir)
