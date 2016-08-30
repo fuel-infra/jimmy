@@ -30,6 +30,7 @@ class JenkinsConfiguration(BaseGroovyPlugin):
                              "groovy",
                              self.groovy_path,
                              "'{0}'".format(data["admin_email"]),  # jenkins-cli bug workaround
+                             "'{0}'".format(data["location_url"]),
                              data["markup_format"],
                              str(data["num_of_executors"]),
                              str(data["scm_checkout_retry_count"])

@@ -22,15 +22,20 @@ import org.jenkinsci.plugins.UnsafeMarkupFormatter
 
 
 admin_email = args[0]
-markup_format = args[1]
-num_of_executors = args[2]
-scm_checkout_retry_count = args[3]
+location_url = args[1]
+markup_format = args[2]
+num_of_executors = args[3]
+scm_checkout_retry_count = args[4]
 
 // removing '', jenkins cli bug workaround
 admin_email = admin_email.replaceAll('^\'|\'$', '')
-//setting system admin email
+location_url = location_url.replaceAll('^\'|\'$', '')
+//get configuration object
 def loc = JenkinsLocationConfiguration.get()
+//setting system admin email
 loc.setAdminAddress(admin_email)
+//setting jenkins location url
+loc.setUrl(location_url)
 loc.save()
 
 //setting markup formatter

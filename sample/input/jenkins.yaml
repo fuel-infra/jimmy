@@ -1,6 +1,7 @@
 jenkins:
   configuration:
     admin_email: CI <admin@example.com>
+    location_url: http://example.com/jenkins/
     markup_format: raw-html
     num_of_executors: 2
     scm_checkout_retry_count: 1
