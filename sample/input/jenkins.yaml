@@ -46,6 +46,11 @@ jenkins:
       url: http://test.com2
       auth_key: /var/lib/jenkins/.ssh/id_rsa
 
+  git:
+    user:
+      email: jenkins@example.com
+      name: Jenkins
+
   throttle:
     categories:
     - category_name: category1

@@ -23,14 +23,15 @@ class Git(BaseGroovyPlugin):
 
     def update_dest(self, source, jenkins_url, jenkins_cli_path, **kwargs):
         data = self._tree_read(source, self.source_tree_path)
-        try:
-            subprocess.call(["java",
-                             "-jar", jenkins_cli_path,
-                             "-s", jenkins_url,
-                             "groovy",
-                             self.groovy_path,
-                             "'{0}'".format(data["git_email"]),  # jenkins-cli bug workaround
-                             "'{0}'".format(data["git_name"])
-                             ], shell=False)
-        except OSError:
-            self.logger.exception('Could not find java')
+        if "user" in data:
+            try:
+                subprocess.call(["java",
+                                 "-jar", jenkins_cli_path,
+                                 "-s", jenkins_url,
+                                 "groovy",
+                                 self.groovy_path,
+                                 "'{0}'".format(data["user"]["email"]),  # jenkins-cli bug workaround
+                                 "'{0}'".format(data["user"]["name"])
+                                 ], shell=False)
+            except OSError:
+                self.logger.exception('Could not find java')

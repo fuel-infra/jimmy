@@ -54,8 +54,9 @@ class TestGitConfiguration(base.TestCase):
                                   [
                                       'jenkins:',
                                       '  git:',
-                                      '    git_email: jenkins@example.com',
-                                      '    git_name: Jenkins'
+                                      '    user:',
+                                      '      email: jenkins@example.com',
+                                      '      name: Jenkins'
                                   ])
                               })
         sys.path.insert(0, plugins_dir)
@@ -89,40 +90,44 @@ class TestGitSchema(object):
     def test_valid_repo_data(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              'git_email: jenkins@example.com',
-              'git_name: Jenkins'
+              'user:',
+              '  email: jenkins@example.com',
+              '  name: Jenkins'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
         jsonschema.validate(repo_data, self.schema)
 
-    def test_validation_fail_for_git_email_required_property(self):
+    def test_validation_fail_for_email_required_property(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              'git_name: Jenkins'
+              'user:',
+              '  name: Jenkins'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
         with pytest.raises(jsonschema.ValidationError) as excinfo:
             jsonschema.validate(repo_data, self.schema)
-        assert excinfo.value.message == "'git_email' is a required property"
+        assert excinfo.value.message == "'email' is a required property"
 
-    def test_validation_fail_for_git_name_required_property(self):
+    def test_validation_fail_for_name_required_property(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              'git_email: jenkins@example.com',
+              'user:',
+              '  email: jenkins@example.com',
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
         with pytest.raises(jsonschema.ValidationError) as excinfo:
             jsonschema.validate(repo_data, self.schema)
-        assert excinfo.value.message == "'git_name' is a required property"
+        assert excinfo.value.message == "'name' is a required property"
 
-    def test_validation_fail_if_git_email_is_not_string(self):
+    def test_validation_fail_if_email_is_not_string(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              'git_email: 123',
-              'git_name: Jenkins'
+              'user:',
+              '  email: 123',
+              '  name: Jenkins'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -130,11 +135,12 @@ class TestGitSchema(object):
             jsonschema.validate(repo_data, self.schema)
         assert excinfo.value.message == "123 is not of type 'string'"
 
-    def test_validation_fail_if_git_name_is_not_string(self):
+    def test_validation_fail_if_name_is_not_string(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              'git_email: jenkins@example.com',
-              'git_name: 123'
+              'user:',
+              '  email: jenkins@example.com',
+              '  name: 123'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -145,9 +151,10 @@ class TestGitSchema(object):
     def test_validation_fail_for_additional_properties(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              'git_email: jenkins@example.com',
-              'git_name: 123',
-              'test: 123'
+              'user:',
+              '  email: jenkins@example.com',
+              '  name: Jenkins',
+              '  test: 123'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
