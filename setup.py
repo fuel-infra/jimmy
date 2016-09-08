@@ -67,6 +67,7 @@ config = {
     'package_data': {
         'lib': ['schema.yaml'],
         'plugins': ['credentials/resources/*',
+                    'git/resources/*',
                     'gerrit/resources/*',
                     'gearman/resources/*',
                     'jenkins_configuration/resources/*',

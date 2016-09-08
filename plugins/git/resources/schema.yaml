@@ -1,0 +1,19 @@
+title: Schema for Jenkins Git plugin configuration
+type: object
+additionalProperties: false
+properties:
+  git_email:
+    description: |
+      Email to use with git commits. Global setting to be used
+      in call to "git config user.email".
+    type: string
+
+  git_name:
+    description: |
+      Name to use with git commits. Global setting to be used
+      in call to "git config user.name".
+    type: string
+
+required:
+- git_email
+- git_name
