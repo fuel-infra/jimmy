@@ -1,0 +1,49 @@
+title: Schema for Jenkins Artifactory plugin configuration
+type: object
+additionalProperties: false
+
+properties:
+
+  server:
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        description: |
+          User-defined unique Artifactory server id, like 'artifactory-dev'.
+        type: string
+
+      url:
+        description: |
+          Root URL of your Artifactory installation, like http://example.com/artifactory.
+        type: string
+
+      deployer_credentials_id:
+        description: |
+          Credentials ID to use for Artifactory deployer.
+        type: string
+
+      resolver_credentials_id:
+        description: |
+          Credentials ID to use for Artifactory resolver
+          (if resolver uses different credentials).
+        type: string
+
+      timeout:
+        description: |
+          Network timeout in seconds to use both for connection establishment and for
+          unanswered requests.
+        type: integer
+
+      bypass_proxy:
+        description: |
+          Bypass the global Jenkins proxy configuration when connecting to this server.
+        type: boolean
+
+    required:
+      - id
+      - url
+      - deployer_credentials_id
+
+required:
+  - server

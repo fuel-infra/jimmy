@@ -66,7 +66,8 @@ config = {
     'packages': find_packages(),
     'package_data': {
         'lib': ['schema.yaml'],
-        'plugins': ['credentials/resources/*',
+        'plugins': ['artifactory/resources/*',
+                    'credentials/resources/*',
                     'git/resources/*',
                     'gerrit/resources/*',
                     'gearman/resources/*',
