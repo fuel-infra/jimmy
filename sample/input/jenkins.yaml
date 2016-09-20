@@ -1,4 +1,13 @@
 jenkins:
+  artifactory:
+    server:
+      id: artifactory-dev
+      url: http://example.com/artifactory
+      deployer_credentials_id: deployer-credentials
+      resolver_credentials_id: resolver-credentials
+      timeout: 600
+      bypass_proxy: true
+
   configuration:
     admin_email: CI <admin@example.com>
     location_url: http://example.com/jenkins/

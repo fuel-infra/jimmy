@@ -62,6 +62,9 @@ class Actions {
 
     descr.setUseCredentialsPlugin(true)
     descr.setArtifactoryServers(servers)
+    // commit setings
+    descr.save()
+    inst.save()
   }
 }
 
