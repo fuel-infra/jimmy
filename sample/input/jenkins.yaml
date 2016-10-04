@@ -60,6 +60,21 @@ jenkins:
       email: jenkins@example.com
       name: Jenkins
 
+  pipeline_libraries:
+    libraries:
+    - name: shared-lib
+      git_url: https://github.com/example/shared-lib
+      git_branch: master
+      default_version: release-0.1
+      load_implicitly: true
+      allow_version_override: false
+    - name: shared-lib-dev
+      git_url: https://github.com/example/shared-lib-dev
+      git_branch: master
+      default_version: master
+      load_implicitly: false
+      allow_version_override: true
+
   throttle:
     categories:
     - category_name: category1

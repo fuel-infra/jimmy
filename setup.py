@@ -72,6 +72,7 @@ config = {
                     'gerrit/resources/*',
                     'gearman/resources/*',
                     'jenkins_configuration/resources/*',
+                    'pipeline_libraries/resources/*',
                     'security/resources/*',
                     'throttle/resources/*'],
     },

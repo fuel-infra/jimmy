@@ -1,0 +1,58 @@
+title: Schema for Pipeline Shared Groovy Libraries plugin
+type: object
+additionalProperties: false
+
+properties:
+
+  libraries:
+    type: array
+    additionalItems: false
+    items:
+      type: object
+      properties:
+        name:
+          description: |
+            An identifier you pick for this library, to be used in the @Library annotation.
+          type: string
+
+        git_url:
+          description: |
+            Specify the URL of this remote repository. This uses the same syntax as your
+            git clone command.
+          type: string
+
+        git_branch:
+          description: |
+            Specify the repository branch you'd like to track.
+          type: string
+
+        default_version:
+          description: |
+            A default version of the library to load if a script does not select another.
+            Might be a branch name, tag, commit hash, etc., according to the SCM.
+          type: string
+
+        load_implicitly:
+          description: |
+            If true, scripts will automatically have access to this library without
+            needing to request it via @Library.
+          type: boolean
+
+        allow_version_override:
+          description: |
+            If true, scripts may select a custom version of the library by appending @someversion
+            in the @Library annotation. Otherwise they are restricted to using
+            the version you select here.
+          type: boolean
+
+      additionalProperties: false
+      required:
+        - name
+        - git_url
+        - git_branch
+        - default_version
+        - load_implicitly
+        - allow_version_override
+
+required:
+  - libraries
