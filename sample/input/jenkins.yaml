@@ -1,12 +1,17 @@
 jenkins:
   artifactory:
+    build_info_proxy:
+      port: 9876
     server:
-      id: artifactory-dev
+    - id: artifactory
       url: http://example.com/artifactory
       deployer_credentials_id: deployer-credentials
       resolver_credentials_id: resolver-credentials
       timeout: 600
       bypass_proxy: true
+    - id: artifactory-dev
+      url: http://example.com/artifactory-dev
+      deployer_credentials_id: deployer-dev-credentials
 
   configuration:
     admin_email: CI <admin@example.com>

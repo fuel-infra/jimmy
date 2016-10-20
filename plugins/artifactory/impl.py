@@ -23,23 +23,36 @@ class Artifactory(BaseGroovyPlugin):
 
     def update_dest(self, source, jenkins_url, jenkins_cli_path, **kwargs):
         data = self._tree_read(source, self.source_tree_path)
-        # Optional params
-        resolver_credentials_id = data["server"].get("resolver_credentials_id", "")
-        timeout = data["server"].get("timeout", 300)
-        bypass_proxy = data["server"].get("bypass_proxy", False)
-        try:
-            subprocess.call(["java",
-                             "-jar", jenkins_cli_path,
-                             "-s", jenkins_url,
-                             "groovy",
-                             self.groovy_path,
-                             "set_artifactory_config",
-                             data["server"]["id"],
-                             data["server"]["url"],
-                             data["server"]["deployer_credentials_id"],
-                             resolver_credentials_id,
-                             str(timeout),
-                             str(bypass_proxy)
-                             ], shell=False)
-        except OSError:
-            self.logger.exception('Could not find java')
+        if "build_info_proxy" in data:
+            try:
+                subprocess.call(["java",
+                                 "-jar", jenkins_cli_path,
+                                 "-s", jenkins_url,
+                                 "groovy",
+                                 self.groovy_path,
+                                 "setGlobalConfig",
+                                 str(data["build_info_proxy"]["port"])
+                                 ], shell=False)
+            except OSError:
+                self.logger.exception('Could not find java')
+        for server in data["servers"]:
+            # Optional params
+            resolver_credentials_id = server.get("resolver_credentials_id", "")
+            timeout = server.get("timeout", 300)
+            bypass_proxy = server.get("bypass_jenkins_proxy", False)
+            try:
+                subprocess.call(["java",
+                                 "-jar", jenkins_cli_path,
+                                 "-s", jenkins_url,
+                                 "groovy",
+                                 self.groovy_path,
+                                 "setServerConfig",
+                                 server["id"],
+                                 server["url"],
+                                 server["deployer_credentials_id"],
+                                 resolver_credentials_id,
+                                 str(timeout),
+                                 str(bypass_proxy)
+                                 ], shell=False)
+            except OSError:
+                self.logger.exception('Could not find java')

@@ -23,6 +23,7 @@ import pytest
 import sys
 import jsonschema
 from jimmy import cli
+from mock import call
 from click.testing import CliRunner
 from lib.common import yaml_reader
 from tests import base
@@ -54,13 +55,21 @@ class TestArtifactoryPlugin(base.TestCase):
                                   [
                                       'jenkins:',
                                       '  artifactory:',
-                                      '    server:',
-                                      '      id: artifactory-server',
+                                      '    build_info_proxy:',
+                                      '      port: 9876',
+                                      '    servers:',
+                                      '    - id: artifactory-server',
                                       '      url: artifactory.example.com',
                                       '      deployer_credentials_id: artifactory-credentials',
                                       '      resolver_credentials_id: resolver-credentials',
                                       '      timeout: 600',
-                                      '      bypass_proxy: false'
+                                      '      bypass_jenkins_proxy: false',
+                                      '    - id: artifactory-server-dev',
+                                      '      url: artifactory-dev.example.com',
+                                      '      deployer_credentials_id: artifactory-dev-credentials',
+                                      '      resolver_credentials_id: resolver-dev-credentials',
+                                      '      timeout: 600',
+                                      '      bypass_jenkins_proxy: false'
                                   ])
                               })
         sys.path.insert(0, plugins_dir)
@@ -70,19 +79,39 @@ class TestArtifactoryPlugin(base.TestCase):
         mock_modules.return_value = [artifactory, read_source]
         os.chdir(jimmy_dir)
         self.runner.invoke(cli)
-        mock_subp.assert_called_with(
-            ['java', '-jar', '<< path to jenkins-cli.jar >>',
-             '-s', 'http://localhost:8080', 'groovy',
-             plugins_dir + '/' + 'artifactory/resources/jenkins.groovy',
-             'set_artifactory_config',
-             'artifactory-server',
-             'artifactory.example.com',
-             'artifactory-credentials',
-             'resolver-credentials',
-             '600',
-             'False'
-             ], shell=False)
-        assert 1 == mock_subp.call_count, "subprocess call should be equal to 1"
+        calls = [call(['java',
+                       '-jar', '<< path to jenkins-cli.jar >>',
+                       '-s', 'http://localhost:8080', 'groovy',
+                       plugins_dir + '/' + 'artifactory/resources/jenkins.groovy',
+                       'setGlobalConfig',
+                       '9876'
+                       ], shell=False),
+                 call(['java',
+                       '-jar', '<< path to jenkins-cli.jar >>',
+                       '-s', 'http://localhost:8080', 'groovy',
+                       plugins_dir + '/' + 'artifactory/resources/jenkins.groovy',
+                       'setServerConfig',
+                       'artifactory-server',
+                       'artifactory.example.com',
+                       'artifactory-credentials',
+                       'resolver-credentials',
+                       '600',
+                       'False'
+                       ], shell=False),
+                 call(['java',
+                       '-jar', '<< path to jenkins-cli.jar >>',
+                       '-s', 'http://localhost:8080', 'groovy',
+                       plugins_dir + '/' + 'artifactory/resources/jenkins.groovy',
+                       'setServerConfig',
+                       'artifactory-server-dev',
+                       'artifactory-dev.example.com',
+                       'artifactory-dev-credentials',
+                       'resolver-dev-credentials',
+                       '600',
+                       'False'
+                       ], shell=False)]
+        mock_subp.assert_has_calls(calls, any_order=True)
+        assert 3 == mock_subp.call_count, "subprocess call should be equal to 3"
 
 
 class TestArtifactorySchema(object):
@@ -100,27 +129,58 @@ class TestArtifactorySchema(object):
     def test_valid_repo_data(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              'server:',
-              '  id: artifactory-server',
+              'build_info_proxy:',
+              '  port: 9876',
+              'servers:',
+              '- id: artifactory-server',
               '  url: artifactory.example.com',
               '  deployer_credentials_id: artifactory-credentials',
               '  resolver_credentials_id: resolver-credentials',
               '  timeout: 600',
-              '  bypass_proxy: False'
+              '  bypass_jenkins_proxy: False'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
         jsonschema.validate(repo_data, self.schema)
 
+    def test_validation_fail_if_port_is_not_integer(self):
+        self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
+            [
+              'build_info_proxy:',
+              '  port: test',
+              'servers:',
+              '  url: artifactory.example.com',
+              '  deployer_credentials_id: artifactory-credentials'
+            ])
+        })
+        repo_data = yaml_reader.read(jenkins_yaml_path)
+        with pytest.raises(jsonschema.ValidationError) as excinfo:
+            jsonschema.validate(repo_data, self.schema)
+        assert excinfo.value.message == "'test' is not of type 'integer'"
+
+    def test_validation_fail_for_servers_not_array(self):
+        self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
+            [
+              'servers:',
+              '  url: artifactory.example.com',
+              '  deployer_credentials_id: artifactory-credentials'
+            ])
+        })
+        repo_data = yaml_reader.read(jenkins_yaml_path)
+        with pytest.raises(jsonschema.ValidationError) as excinfo:
+            jsonschema.validate(repo_data, self.schema)
+        assert excinfo.value.message == "{'url': 'artifactory.example.com'," \
+            " 'deployer_credentials_id': 'artifactory-credentials'} is not of type 'array'"
+
     def test_validation_fail_for_id_required_property(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              'server:',
-              '  url: artifactory.example.com',
+              'servers:',
+              '- url: artifactory.example.com',
               '  deployer_credentials_id: artifactory-credentials',
               '  resolver_credentials_id: resolver-credentials',
               '  timeout: 600',
-              '  bypass_proxy: False'
+              '  bypass_jenkins_proxy: False'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -131,12 +191,12 @@ class TestArtifactorySchema(object):
     def test_validation_fail_for_url_required_property(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              'server:',
-              '  id: artifactory-server',
+              'servers:',
+              '- id: artifactory-server',
               '  deployer_credentials_id: artifactory-credentials',
               '  resolver_credentials_id: resolver-credentials',
               '  timeout: 600',
-              '  bypass_proxy: False'
+              '  bypass_jenkins_proxy: False'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -147,12 +207,12 @@ class TestArtifactorySchema(object):
     def test_validation_fail_for_deployer_credentials_required_property(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              'server:',
-              '  id: artifactory-server',
+              'servers:',
+              '- id: artifactory-server',
               '  url: artifactory.example.com',
               '  resolver_credentials_id: resolver-credentials',
               '  timeout: 600',
-              '  bypass_proxy: False'
+              '  bypass_jenkins_proxy: False'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -163,13 +223,13 @@ class TestArtifactorySchema(object):
     def test_validation_fail_if_id_is_not_string(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              'server:',
-              '  id: 123',
+              'servers:',
+              '- id: 123',
               '  url: artifactory.example.com',
               '  deployer_credentials_id: artifactory-credentials',
               '  resolver_credentials_id: resolver-credentials',
               '  timeout: 600',
-              '  bypass_proxy: False'
+              '  bypass_jenkins_proxy: False'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -180,13 +240,13 @@ class TestArtifactorySchema(object):
     def test_validation_fail_if_url_is_not_string(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              'server:',
-              '  id: artifactory-server',
+              'servers:',
+              '- id: artifactory-server',
               '  url: 123',
               '  deployer_credentials_id: artifactory-credentials',
               '  resolver_credentials_id: resolver-credentials',
               '  timeout: 600',
-              '  bypass_proxy: False'
+              '  bypass_jenkins_proxy: False'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -197,13 +257,13 @@ class TestArtifactorySchema(object):
     def test_validation_fail_if_deployer_credentials_is_not_string(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              'server:',
-              '  id: artifactory-server',
+              'servers:',
+              '- id: artifactory-server',
               '  url: artifactory.example.com',
               '  deployer_credentials_id: 123',
               '  resolver_credentials_id: resolver-credentials',
               '  timeout: 600',
-              '  bypass_proxy: False'
+              '  bypass_jenkins_proxy: False'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -214,13 +274,13 @@ class TestArtifactorySchema(object):
     def test_validation_fail_if_resolver_credentials_is_not_string(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              'server:',
-              '  id: artifactory-server',
+              'servers:',
+              '- id: artifactory-server',
               '  url: artifactory.example.com',
               '  deployer_credentials_id: artifactory-credentials',
               '  resolver_credentials_id: 123',
               '  timeout: 600',
-              '  bypass_proxy: False'
+              '  bypass_jenkins_proxy: False'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -231,13 +291,13 @@ class TestArtifactorySchema(object):
     def test_validation_fail_if_timeout_is_not_integer(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              'server:',
-              '  id: artifactory-server',
+              'servers:',
+              '- id: artifactory-server',
               '  url: artifactory.example.com',
               '  deployer_credentials_id: artifactory-credentials',
               '  resolver_credentials_id: resolver-credentials',
               '  timeout: test',
-              '  bypass_proxy: False'
+              '  bypass_jenkins_proxy: False'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -248,13 +308,13 @@ class TestArtifactorySchema(object):
     def test_validation_fail_if_bypass_proxy_is_not_boolean(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              'server:',
-              '  id: artifactory-server',
+              'servers:',
+              '- id: artifactory-server',
               '  url: artifactory.example.com',
               '  deployer_credentials_id: artifactory-credentials',
               '  resolver_credentials_id: resolver-credentials',
               '  timeout: 600',
-              '  bypass_proxy: test'
+              '  bypass_jenkins_proxy: test'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -265,13 +325,13 @@ class TestArtifactorySchema(object):
     def test_validation_fail_for_additional_properties(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
-              'server:',
-              '  id: artifactory-server',
+              'servers:',
+              '- id: artifactory-server',
               '  url: artifactory.example.com',
               '  deployer_credentials_id: artifactory-credentials',
               '  resolver_credentials_id: resolver-credentials',
               '  timeout: 600',
-              '  bypass_proxy: False',
+              '  bypass_jenkins_proxy: False',
               '  test: test'
             ])
         })

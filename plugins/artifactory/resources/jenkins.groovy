@@ -17,51 +17,83 @@
 import jenkins.model.Jenkins
 import org.jfrog.hudson.ArtifactoryServer
 import org.jfrog.hudson.CredentialsConfig
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 class Actions {
   Actions(out) { this.out = out }
   def out
 
-  void set_artifactory_config(
-    String server_id,
-    String artifactory_url,
-    String deployer_credentials_id,
-    String resolver_credentials_id=null,
-    String timeout=null,
-    String bypass_proxy=null
+  void setGlobalConfig(
+    String proxyPort=null
   ) {
-
-    CredentialsConfig deployer_credentials_config = new CredentialsConfig(
-      null, null, deployer_credentials_id, false
-    )
-
-    CredentialsConfig resolver_credentials_config
-
-    if (resolver_credentials_id != null && resolver_credentials_id !="") {
-      resolver_credentials_config = new CredentialsConfig(
-        null, null, resolver_credentials_id, true
-      )
-    } else {
-      resolver_credentials_config = deployer_credentials_config
-    }
-
-    ArtifactoryServer server_config = new ArtifactoryServer(
-      server_id,
-      artifactory_url,
-      deployer_credentials_config,
-      resolver_credentials_config,
-      timeout.toInteger(),
-      bypass_proxy.toBoolean()
-    )
-
-    def servers = [server_config]
-
 
     def inst = Jenkins.getInstance()
     def descr = inst.getDescriptor("org.jfrog.hudson.ArtifactoryBuilder")
 
+    // enable credentials plugin usage
     descr.setUseCredentialsPlugin(true)
+
+    // set build-info proxy settings
+    def proxy = [ buildInfoProxyEnabled : true,
+                  buildInfoProxyPort : proxyPort ]
+    JSONObject proxyConfig = (JSONObject) JSONSerializer.toJSON(proxy)
+    descr.configureProxy(proxyConfig)
+    descr.initDefaultCertPaths()
+
+    // commit setings
+    descr.save()
+    inst.save()
+  }
+
+  void setServerConfig(
+    String serverId,
+    String artifactoryUrl,
+    String deployerCredentialsId,
+    String resolverCredentialsId=null,
+    String timeout=null,
+    String bypassProxy=null
+  ) {
+
+    // create CredentialsConfig objects for deployer and resolver
+    CredentialsConfig deployerCredentialsConfig = new CredentialsConfig(
+      null, null, deployerCredentialsId, false
+    )
+
+    CredentialsConfig resolverCredentialsConfig
+
+    if (resolverCredentialsId != null && resolverCredentialsId !="") {
+      resolverCredentialsConfig = new CredentialsConfig(
+        null, null, resolverCredentialsId, true
+      )
+    } else {
+      resolverCredentialsConfig = deployerCredentialsConfig
+    }
+
+    // create ArtifactoryServer configuration
+    ArtifactoryServer serverConfig = new ArtifactoryServer(
+      serverId,
+      artifactoryUrl,
+      deployerCredentialsConfig,
+      resolverCredentialsConfig,
+      timeout.toInteger(),
+      bypassProxy.toBoolean()
+    )
+
+    def inst = Jenkins.getInstance()
+    def descr = inst.getDescriptor("org.jfrog.hudson.ArtifactoryBuilder")
+    def servers = descr.getArtifactoryServers() ?: []
+
+    for (ArtifactoryServer server : servers) {
+      if (server.getName() == serverId) {
+        servers = servers.minus(server)
+      }
+    }
+
+    servers = servers.plus(serverConfig)
+
     descr.setArtifactoryServers(servers)
+
     // commit setings
     descr.save()
     inst.save()
