@@ -65,6 +65,15 @@ jenkins:
       email: jenkins@example.com
       name: Jenkins
 
+  http_request:
+    basic_auth:
+    - key_name: auth-id
+      username: user
+      password: secret
+    - key_name: auth-id2
+      username: user2
+      password: secret2
+
   pipeline_libraries:
     libraries:
     - name: shared-lib

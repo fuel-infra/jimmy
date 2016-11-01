@@ -1,0 +1,35 @@
+title: Schema for HTTP Request plugin
+type: object
+additionalProperties: false
+
+properties:
+
+  basic_auth:
+    type: array
+    additionalItems: false
+    items:
+      type: object
+      properties:
+        key_name:
+          description: |
+            A unique name of this authentication process.
+          type: string
+
+        username:
+          description: |
+            Username for this authentication.
+          type: string
+
+        password:
+          description: |
+            Password for this authentication.
+          type: string
+
+      additionalProperties: false
+      required:
+        - key_name
+        - username
+        - password
+
+required:
+  - basic_auth

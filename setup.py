@@ -71,6 +71,7 @@ config = {
                     'git/resources/*',
                     'gerrit/resources/*',
                     'gearman/resources/*',
+                    'http_request/resources/*',
                     'jenkins_configuration/resources/*',
                     'pipeline_libraries/resources/*',
                     'security/resources/*',
