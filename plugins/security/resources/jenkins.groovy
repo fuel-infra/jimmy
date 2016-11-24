@@ -19,7 +19,7 @@ import hudson.model.Computer
 import hudson.model.Hudson
 import hudson.model.Run
 import hudson.model.View
-import hudson.security.GlobalMatrixAuthorizationStrategy
+import hudson.security.ProjectMatrixAuthorizationStrategy
 import hudson.security.AuthorizationStrategy
 import hudson.security.Permission
 import jenkins.model.Jenkins
@@ -81,7 +81,7 @@ class Actions {
     def instance = Jenkins.getInstance()
     def strategy
     def realm
-    strategy = new hudson.security.GlobalMatrixAuthorizationStrategy()
+    strategy = new hudson.security.ProjectMatrixAuthorizationStrategy()
     create_update_user(ldapuser, email, password, name, pub_keys)
 
     for (Permission p : Item.PERMISSIONS.getPermissions()) {
@@ -134,7 +134,7 @@ class Actions {
     def overwrite_permissions
     def strategy
     def realm
-    strategy = new hudson.security.GlobalMatrixAuthorizationStrategy()
+    strategy = new hudson.security.ProjectMatrixAuthorizationStrategy()
 
     create_update_user(user, email, password, name, pub_keys)
     for (Permission p : Item.PERMISSIONS.getPermissions()) {
