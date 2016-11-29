@@ -21,38 +21,96 @@ import hudson.markup.EscapedMarkupFormatter
 import org.jenkinsci.plugins.UnsafeMarkupFormatter
 
 
-admin_email = args[0]
-location_url = args[1]
-markup_format = args[2]
-num_of_executors = args[3]
-scm_checkout_retry_count = args[4]
+class Actions {
+  Actions(out) { this.out = out }
+  def out
 
-// removing '', jenkins cli bug workaround
-admin_email = admin_email.replaceAll('^\'|\'$', '')
-location_url = location_url.replaceAll('^\'|\'$', '')
-//get configuration object
-def loc = JenkinsLocationConfiguration.get()
-//setting system admin email
-loc.setAdminAddress(admin_email)
-//setting jenkins location url
-loc.setUrl(location_url)
-loc.save()
+  void setAdminEmail(
+    String adminEmail
+  ) {
 
-//setting markup formatter
-Jenkins jenkins = Jenkins.getInstance()
-if (markup_format == "raw-html") {
-  jenkins.setMarkupFormatter(new RawHtmlMarkupFormatter(false))
-} else if (markup_format == "plain-text") {
-  jenkins.setMarkupFormatter(new EscapedMarkupFormatter())
-} else if (markup_format == "unsafe") {
-  jenkins.setMarkupFormatter(new UnsafeMarkupFormatter())
+    adminEmail = adminEmail.replaceAll('^\'|\'$', '')
+
+    def loc = JenkinsLocationConfiguration.get()
+    loc.setAdminAddress(adminEmail)
+    loc.save()
+  }
+
+  void setAgentTcpPort(
+    String agentTcpPort
+  ) {
+
+    Jenkins jenkins = Jenkins.getInstance()
+
+    if (jenkins.getSlaveAgentPort() != Integer.parseInt(agentTcpPort)) {
+      jenkins.setSlaveAgentPort(Integer.parseInt(agentTcpPort))
+    }
+
+    jenkins.save()
+  }
+
+  void setLocationUrl(
+    String locationUrl
+  ) {
+
+    locationUrl = locationUrl.replaceAll('^\'|\'$', '')
+
+    def loc = JenkinsLocationConfiguration.get()
+    loc.setUrl(locationUrl)
+    loc.save()
+  }
+
+  void setMarkupFormatter(
+    String markupFormatter
+  ) {
+
+    Jenkins jenkins = Jenkins.getInstance()
+    if (markupFormatter == "raw-html") {
+      jenkins.setMarkupFormatter(new RawHtmlMarkupFormatter(false))
+    } else if (markupFormatter == "plain-text") {
+      jenkins.setMarkupFormatter(new EscapedMarkupFormatter())
+    } else if (markupFormatter == "unsafe") {
+      jenkins.setMarkupFormatter(new UnsafeMarkupFormatter())
+    }
+
+    jenkins.save()
+  }
+
+  void setNumExecutors(
+    String numOfExecutors
+  ) {
+
+    Jenkins jenkins = Jenkins.getInstance()
+
+    if (jenkins.getNumExecutors() != Integer.parseInt(numOfExecutors)) {
+      jenkins.setNumExecutors(Integer.parseInt(numOfExecutors))
+    }
+
+    jenkins.save()
+  }
+
+  void setScmCheckoutRetryCount(
+    String scmCheckoutRetryCound
+  ) {
+
+    Jenkins jenkins = Jenkins.getInstance()
+
+    if (jenkins.getScmCheckoutRetryCount() != Integer.parseInt(scmCheckoutRetryCound)) {
+      jenkins.setScmCheckoutRetryCount(Integer.parseInt(scmCheckoutRetryCound))
+    }
+
+    jenkins.save()
+  }
 }
-//setting number of executors for master node
-if (jenkins.getNumExecutors() != Integer.parseInt(num_of_executors)) {
-  jenkins.setNumExecutors(Integer.parseInt(num_of_executors))
+
+///////////////////////////////////////////////////////////////////////////////
+// CLI Argument Processing
+///////////////////////////////////////////////////////////////////////////////
+
+actions = new Actions(out)
+action = args[0]
+if (args.length < 2) {
+  actions."$action"()
+} else {
+  actions."$action"(*args[1..-1])
 }
-//setting scm checkout retry count
-if (jenkins.getScmCheckoutRetryCount() != Integer.parseInt(scm_checkout_retry_count)) {
-  jenkins.setScmCheckoutRetryCount(Integer.parseInt(scm_checkout_retry_count))
-}
-jenkins.save()

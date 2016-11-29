@@ -15,6 +15,7 @@ jenkins:
 
   configuration:
     admin_email: CI <admin@example.com>
+    agent_tcp_port: 50000
     location_url: http://example.com/jenkins/
     markup_format: raw-html
     num_of_executors: 2

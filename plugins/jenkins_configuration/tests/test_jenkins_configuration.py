@@ -25,6 +25,7 @@ import jsonschema
 from jimmy import cli
 from click.testing import CliRunner
 from lib.common import yaml_reader
+from mock import call
 from tests import base
 
 plugins_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
@@ -55,6 +56,7 @@ class TestJenkinsConfiguration(base.TestCase):
                                       'jenkins:',
                                       '  configuration:',
                                       '    admin_email: CI <admin@example.com>',
+                                      '    agent_tcp_port: 50000',
                                       '    location_url: http://example.com/jenkins/',
                                       '    markup_format: raw-html',
                                       '    num_of_executors: 2',
@@ -68,14 +70,44 @@ class TestJenkinsConfiguration(base.TestCase):
         mock_modules.return_value = [jenkins_configuration, read_source]
         os.chdir(jimmy_dir)
         self.runner.invoke(cli)
-        mock_subp.assert_called_with(
-           ['java', '-jar', '<< path to jenkins-cli.jar >>',
-            '-s', 'http://localhost:8080', 'groovy',
-            plugins_dir + '/' + 'jenkins_configuration/resources/jenkins.groovy',
-            "'CI <admin@example.com>'", "'http://example.com/jenkins/'",
-            'raw-html', '2', '1'
-            ], shell=False)
-        assert 1 == mock_subp.call_count, "subproccess call should be equal to 1"
+        calls = [call(['java', '-jar', '<< path to jenkins-cli.jar >>',
+                       '-s', 'http://localhost:8080', 'groovy',
+                       plugins_dir + '/' + 'jenkins_configuration/resources/jenkins.groovy',
+                       'setAdminEmail',
+                       "'CI <admin@example.com>'"],
+                      shell=False),
+                 call(['java', '-jar', '<< path to jenkins-cli.jar >>',
+                       '-s', 'http://localhost:8080', 'groovy',
+                       plugins_dir + '/' + 'jenkins_configuration/resources/jenkins.groovy',
+                       'setAgentTcpPort',
+                       '50000'],
+                      shell=False),
+                 call(['java', '-jar', '<< path to jenkins-cli.jar >>',
+                       '-s', 'http://localhost:8080', 'groovy',
+                       plugins_dir + '/' + 'jenkins_configuration/resources/jenkins.groovy',
+                       'setLocationUrl',
+                       "'http://example.com/jenkins/'"],
+                      shell=False),
+                 call(['java', '-jar', '<< path to jenkins-cli.jar >>',
+                       '-s', 'http://localhost:8080', 'groovy',
+                       plugins_dir + '/' + 'jenkins_configuration/resources/jenkins.groovy',
+                       'setMarkupFormatter',
+                       'raw-html'],
+                      shell=False),
+                 call(['java', '-jar', '<< path to jenkins-cli.jar >>',
+                       '-s', 'http://localhost:8080', 'groovy',
+                       plugins_dir + '/' + 'jenkins_configuration/resources/jenkins.groovy',
+                       'setNumExecutors',
+                       '2'],
+                      shell=False),
+                 call(['java', '-jar', '<< path to jenkins-cli.jar >>',
+                       '-s', 'http://localhost:8080', 'groovy',
+                       plugins_dir + '/' + 'jenkins_configuration/resources/jenkins.groovy',
+                       'setScmCheckoutRetryCount',
+                       '1'],
+                      shell=False)]
+        mock_subp.assert_has_calls(calls, any_order=True)
+        assert 6 == mock_subp.call_count, "subprocess call should be equal to 6"
 
 
 class TestJenkinsSchema(object):
@@ -94,6 +126,7 @@ class TestJenkinsSchema(object):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
               'admin_email: CI <admin@example.com>',
+              'agent_tcp_port: 50000',
               'location_url: http://example.com/jenkins/',
               'markup_format: raw-html',
               'num_of_executors: 2',
@@ -103,80 +136,11 @@ class TestJenkinsSchema(object):
         repo_data = yaml_reader.read(jenkins_yaml_path)
         jsonschema.validate(repo_data, self.schema)
 
-    def test_validation_fail_for_scm_required_property(self):
-        self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
-            [
-              'admin_email: CI <test@example.com>',
-              'location_url: http://example.com/jenkins/',
-              'markup_format: raw-html',
-              'num_of_executors: 3'
-            ])
-        })
-        repo_data = yaml_reader.read(jenkins_yaml_path)
-        with pytest.raises(jsonschema.ValidationError) as excinfo:
-            jsonschema.validate(repo_data, self.schema)
-        assert excinfo.value.message == "'scm_checkout_retry_count' is a required property"
-
-    def test_validation_fail_for_email_required_property(self):
-        self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
-            [
-              'location_url: http://example.com/jenkins/',
-              'scm_checkout_retry_count: 3',
-              'markup_format: raw-html',
-              'num_of_executors: 3'
-            ])
-        })
-        repo_data = yaml_reader.read(jenkins_yaml_path)
-        with pytest.raises(jsonschema.ValidationError) as excinfo:
-            jsonschema.validate(repo_data, self.schema)
-        assert excinfo.value.message == "'admin_email' is a required property"
-
-    def test_validation_fail_for_location_url_required_property(self):
-        self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
-            [
-              'admin_email: CI <test@example.com>',
-              'scm_checkout_retry_count: 3',
-              'markup_format: raw-html',
-              'num_of_executors: 3'
-            ])
-        })
-        repo_data = yaml_reader.read(jenkins_yaml_path)
-        with pytest.raises(jsonschema.ValidationError) as excinfo:
-            jsonschema.validate(repo_data, self.schema)
-        assert excinfo.value.message == "'location_url' is a required property"
-
-    def test_validation_fail_for_markup_required_property(self):
-        self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
-            [
-              'scm_checkout_retry_count: 3',
-              'admin_email: CI <test@example.com>',
-              'location_url: http://example.com/jenkins/',
-              'num_of_executors: 3'
-            ])
-        })
-        repo_data = yaml_reader.read(jenkins_yaml_path)
-        with pytest.raises(jsonschema.ValidationError) as excinfo:
-            jsonschema.validate(repo_data, self.schema)
-        assert excinfo.value.message == "'markup_format' is a required property"
-
-    def test_validation_fail_for_executors_required_property(self):
-        self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
-            [
-              'scm_checkout_retry_count: 3',
-              'admin_email: CI <test@example.com>',
-              'location_url: http://example.com/jenkins/',
-              'markup_format: raw-html'
-            ])
-        })
-        repo_data = yaml_reader.read(jenkins_yaml_path)
-        with pytest.raises(jsonschema.ValidationError) as excinfo:
-            jsonschema.validate(repo_data, self.schema)
-        assert excinfo.value.message == "'num_of_executors' is a required property"
-
     def test_validation_fail_if_markup_is_not_enum(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
               'scm_checkout_retry_count: 3',
+              'agent_tcp_port: 50000',
               'admin_email: CI <test@example.com>',
               'location_url: http://example.com/jenkins/',
               'markup_format: 123',
@@ -188,10 +152,11 @@ class TestJenkinsSchema(object):
             jsonschema.validate(repo_data, self.schema)
         assert excinfo.value.message == "123 is not one of ['plain-text', 'raw-html', 'unsafe']"
 
-    def test_validation_fail_if_scm_is_not_number(self):
+    def test_validation_fail_if_scm_is_not_int(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
               'scm_checkout_retry_count: test',
+              'agent_tcp_port: 50000',
               'admin_email: CI <test@example.com>',
               'location_url: http://example.com/jenkins/',
               'markup_format: raw-html',
@@ -201,12 +166,13 @@ class TestJenkinsSchema(object):
         repo_data = yaml_reader.read(jenkins_yaml_path)
         with pytest.raises(jsonschema.ValidationError) as excinfo:
             jsonschema.validate(repo_data, self.schema)
-        assert excinfo.value.message == "'test' is not of type 'number'"
+        assert excinfo.value.message == "'test' is not of type 'integer'"
 
     def test_validation_fail_if_email_is_not_string(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
               'scm_checkout_retry_count: 3',
+              'agent_tcp_port: 50000',
               'admin_email: 123',
               'location_url: http://example.com/jenkins/',
               'markup_format: raw-html',
@@ -222,6 +188,7 @@ class TestJenkinsSchema(object):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
               'scm_checkout_retry_count: 3',
+              'agent_tcp_port: 50000',
               'admin_email: CI <test@example.com>',
               'location_url: 123',
               'markup_format: raw-html',
@@ -233,10 +200,27 @@ class TestJenkinsSchema(object):
             jsonschema.validate(repo_data, self.schema)
         assert excinfo.value.message == "123 is not of type 'string'"
 
-    def test_validation_fail_if_num_executors_is_not_string(self):
+    def test_validation_fail_if_agent_tcp_port_is_not_int(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
               'scm_checkout_retry_count: 3',
+              'agent_tcp_port: test',
+              'admin_email: CI <test@example.com>',
+              'location_url: http://example.com/jenkins/',
+              'markup_format: raw-html',
+              'num_of_executors: 3'
+            ])
+        })
+        repo_data = yaml_reader.read(jenkins_yaml_path)
+        with pytest.raises(jsonschema.ValidationError) as excinfo:
+            jsonschema.validate(repo_data, self.schema)
+        assert excinfo.value.message == "'test' is not of type 'integer'"
+
+    def test_validation_fail_if_num_executors_is_not_int(self):
+        self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
+            [
+              'scm_checkout_retry_count: 3',
+              'agent_tcp_port: 50000',
               'admin_email: CI <test@example.com>',
               'location_url: http://example.com/jenkins/',
               'markup_format: raw-html',
@@ -246,12 +230,13 @@ class TestJenkinsSchema(object):
         repo_data = yaml_reader.read(jenkins_yaml_path)
         with pytest.raises(jsonschema.ValidationError) as excinfo:
             jsonschema.validate(repo_data, self.schema)
-        assert excinfo.value.message == "'test' is not of type 'number'"
+        assert excinfo.value.message == "'test' is not of type 'integer'"
 
     def test_validation_fail_for_additional_properties(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
               'admin_email: CI <test@example.com>',
+              'agent_tcp_port: 50000',
               'location_url: http://example.com/jenkins/',
               'markup_format: raw-html',
               'num_of_executors: 3',

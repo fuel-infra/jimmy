@@ -8,6 +8,13 @@ properties:
       with this address in the from header.
     type: string
 
+  agent_tcp_port:
+    description: |
+      TCP port for JNLP agents. You can specify the fixed port number so
+      that you can configure your firewall accordingly. Defaults to
+      random port number.
+    type: integer
+
   location_url:
     description: |
       Address of the Jenkins installation, such as
@@ -25,18 +32,10 @@ properties:
 
   num_of_executors:
     description: Number of executors for Master node.
-    type: number
+    type: integer
 
   scm_checkout_retry_count:
     description: |
       If a build fails to checkout from the repository, Jenkins will retry
       the specified number of times before giving up.
-    type: number
-
-required:
-- admin_email
-- location_url
-- markup_format
-- num_of_executors
-- scm_checkout_retry_count
-
+    type: integer
