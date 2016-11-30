@@ -27,6 +27,8 @@ class Security(BaseGroovyPlugin):
             # Optional parameters
             user_search_base = data["ldap"]["search"].get("user_base", "")
             group_search_base = data["ldap"]["search"].get("group_base", "")
+            manager_name = data["ldap"].get("manager", {}).get("name", "")
+            manager_password = data["ldap"].get("manager", {}).get("password", "")
             try:
                 subprocess.call(["java",
                                  "-jar", jenkins_cli_path,
@@ -40,8 +42,8 @@ class Security(BaseGroovyPlugin):
                                  str(data["ldap"]["root_bind"]["allow_blank"]),
                                  user_search_base,
                                  group_search_base,
-                                 data["ldap"]["manager"]["name"],
-                                 data["ldap"]["manager"]["password"],
+                                 manager_name,
+                                 manager_password,
                                  data["cli_user"]["name"],
                                  data["cli_user"]["public_key"]
                                  ], shell=False)

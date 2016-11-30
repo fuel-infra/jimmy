@@ -743,26 +743,6 @@ class TestSecuritySchema(object):
             jsonschema.validate(repo_data, self.schema)
         assert excinfo.value.message == "'search' is a required property"
 
-    def test_ldap_validation_fail_for_manager_required_property(self):
-        self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
-            [
-              'ldap:',
-              '  server: ldap://mirantis.com:3268',
-              '  root_bind:',
-              '    dn: dc=mirantis,dc=com',
-              '    allow_blank: false',
-              '  search:',
-              '    user_filter: userPrincipalName={0}',
-              'cli_user:',
-              '  name: jenkins-manager',
-              '  public_key: sssh-rsa AAAAB3NzaC'
-            ])
-        })
-        repo_data = yaml_reader.read(jenkins_yaml_path)
-        with pytest.raises(jsonschema.ValidationError) as excinfo:
-            jsonschema.validate(repo_data, self.schema)
-        assert excinfo.value.message == "'manager' is a required property"
-
     def test_ldap_validation_fail_if_access_not_array(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [

@@ -129,7 +129,6 @@ properties:
     - server
     - root_bind
     - search
-    - manager
 
 
   password:
