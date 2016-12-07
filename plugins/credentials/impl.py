@@ -31,7 +31,7 @@ class Credentials(BaseGroovyPlugin):
                                      "-s", jenkins_url,
                                      "groovy",
                                      self.groovy_path,
-                                     "update_credentials",
+                                     "updateCredentials",
                                      "'{0}'".format(p["scope"]),  # jenkins-cli bug workaround
                                      "'{0}'".format(p["username"]),
                                      "'{0}'".format(p["password"]),
@@ -53,13 +53,32 @@ class Credentials(BaseGroovyPlugin):
                                      "-s", jenkins_url,
                                      "groovy",
                                      self.groovy_path,
-                                     "update_credentials",
+                                     "updateCredentials",
                                      "'{0}'".format(s["scope"]),  # jenkins-cli bug workaround
                                      "'{0}'".format(s["username"]),
                                      "'{0}'".format(passphrase),
                                      "'{0}'".format(description),
                                      "'{0}'".format(s["private_key"]),
                                      "'{0}'".format(cred_id)
+                                     ], shell=False)
+                except OSError:
+                    self.logger.exception('Could not find java')
+        if "token" in data:
+            for t in data["token"]:
+                description = t.get("description", "")
+                try:
+                    subprocess.call(["java",
+                                     "-jar", jenkins_cli_path,
+                                     "-s", jenkins_url,
+                                     "groovy",
+                                     self.groovy_path,
+                                     "updateCredentials",
+                                     "'{0}'".format(t["scope"]),  # jenkins-cli bug workaround
+                                     "'{0}'".format(t["username"]),
+                                     "''",  # empty filler for a password
+                                     "'{0}'".format(description),
+                                     "''",  # empty filler for a private_key
+                                     "'{0}'".format(t["id"])
                                      ], shell=False)
                 except OSError:
                     self.logger.exception('Could not find java')

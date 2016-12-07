@@ -2,7 +2,7 @@ jenkins:
   artifactory:
     build_info_proxy:
       port: 9876
-    server:
+    servers:
     - id: artifactory
       url: http://example.com/artifactory
       deployer_credentials_id: deployer-credentials
@@ -42,6 +42,11 @@ jenkins:
       description: SSH Username with private key entered directly
       private_key: !include-relative-text:
         secret/admin.key
+    token:
+    - scope: global
+      username: service-user
+      description: username/api token pair for 'service-user'
+      id: service-user-token
 
   gearman:
     enable: true

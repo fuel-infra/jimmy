@@ -64,7 +64,12 @@ class TestCredentialsPlugin(base.TestCase):
                                       '    - scope: global',
                                       '      username: user2',
                                       '      private_key: /home/user/.ssh/id_rsa',
-                                      '      id: this-is-an-id'
+                                      '      id: this-is-an-id',
+                                      '    token:',
+                                      '    - scope: global',
+                                      '      username: user',
+                                      '      id: user-token',
+                                      '      description: test token credentials'
                                   ])
                               })
         sys.path.insert(0, plugins_dir)
@@ -78,7 +83,7 @@ class TestCredentialsPlugin(base.TestCase):
                        '-jar', '<< path to jenkins-cli.jar >>',
                        '-s', 'http://localhost:8080', 'groovy',
                        plugins_dir + '/' + 'credentials/resources/jenkins.groovy',
-                       'update_credentials',
+                       'updateCredentials',
                        "'global'",
                        "'user'",
                        "'passwd'",
@@ -90,16 +95,28 @@ class TestCredentialsPlugin(base.TestCase):
                        '-jar', '<< path to jenkins-cli.jar >>',
                        '-s', 'http://localhost:8080', 'groovy',
                        plugins_dir + '/' + 'credentials/resources/jenkins.groovy',
-                       'update_credentials',
+                       'updateCredentials',
                        "'global'",
                        "'user2'",
                        "''",
                        "''",
                        "'/home/user/.ssh/id_rsa'",
                        "'this-is-an-id'"],
+                      shell=False),
+                 call(['java',
+                       '-jar', '<< path to jenkins-cli.jar >>',
+                       '-s', 'http://localhost:8080', 'groovy',
+                       plugins_dir + '/' + 'credentials/resources/jenkins.groovy',
+                       'updateCredentials',
+                       "'global'",
+                       "'user'",
+                       "''",
+                       "'test token credentials'",
+                       "''",
+                       "'user-token'"],
                       shell=False)]
         mock_subp.assert_has_calls(calls, any_order=True)
-        assert 2 == mock_subp.call_count, "subprocess call should be equal to 2"
+        assert 3 == mock_subp.call_count, "subprocess call should be equal to 3"
 
 
 class TestCredentialsSchema(object):
@@ -158,6 +175,19 @@ class TestCredentialsSchema(object):
         repo_data = yaml_reader.read(jenkins_yaml_path)
         jsonschema.validate(repo_data, self.schema)
 
+    def test_valid_oneof_token_data(self):
+        self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
+            [
+              '    token:',
+              '    - scope: global',
+              '      username: user',
+              '      description: test token credentials',
+              '      id: this-is-token-credentials-id'
+            ])
+        })
+        repo_data = yaml_reader.read(jenkins_yaml_path)
+        jsonschema.validate(repo_data, self.schema)
+
     def test_password_validation_fail_if_scope_is_not_enum(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
@@ -181,6 +211,21 @@ class TestCredentialsSchema(object):
               '      username: user2',
               '      private_key: /home/user/.ssh/id_rsa',
               '      id: this-is-credentials-id'
+            ])
+        })
+        repo_data = yaml_reader.read(jenkins_yaml_path)
+        with pytest.raises(jsonschema.ValidationError) as excinfo:
+            jsonschema.validate(repo_data, self.schema)
+        assert excinfo.value.message == "'test' is not one of ['global', 'system']"
+
+    def test_token_validation_fail_if_scope_is_not_enum(self):
+        self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
+            [
+              '    token:',
+              '    - scope: test',
+              '      username: user',
+              '      description: test token credentials',
+              '      id: this-is-token-credentials-id'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -361,6 +406,48 @@ class TestCredentialsSchema(object):
             jsonschema.validate(repo_data, self.schema)
         assert excinfo.value.message == "'private_key' is a required property"
 
+    def test_token_validation_fail_for_scope_required_property(self):
+        self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
+            [
+              '    token:',
+              '    - username: user',
+              '      description: test token credentials',
+              '      id: this-is-token-credentials-id'
+            ])
+        })
+        repo_data = yaml_reader.read(jenkins_yaml_path)
+        with pytest.raises(jsonschema.ValidationError) as excinfo:
+            jsonschema.validate(repo_data, self.schema)
+        assert excinfo.value.message == "'scope' is a required property"
+
+    def test_token_validation_fail_for_username_property(self):
+        self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
+            [
+              '    token:',
+              '    - scope: global',
+              '      description: test token credentials',
+              '      id: this-is-token-credentials-id'
+            ])
+        })
+        repo_data = yaml_reader.read(jenkins_yaml_path)
+        with pytest.raises(jsonschema.ValidationError) as excinfo:
+            jsonschema.validate(repo_data, self.schema)
+        assert excinfo.value.message == "'username' is a required property"
+
+    def test_token_validation_fail_for_id_required_property(self):
+        self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
+            [
+              '    token:',
+              '    - scope: global',
+              '      username: user',
+              '      description: test token credentials'
+            ])
+        })
+        repo_data = yaml_reader.read(jenkins_yaml_path)
+        with pytest.raises(jsonschema.ValidationError) as excinfo:
+            jsonschema.validate(repo_data, self.schema)
+        assert excinfo.value.message == "'id' is a required property"
+
     def test_validation_fail_if_password_not_array(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
@@ -376,6 +463,17 @@ class TestCredentialsSchema(object):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
               'ssh: 123'
+            ])
+        })
+        repo_data = yaml_reader.read(jenkins_yaml_path)
+        with pytest.raises(jsonschema.ValidationError) as excinfo:
+            jsonschema.validate(repo_data, self.schema)
+        assert excinfo.value.message == "123 is not of type 'array'"
+
+    def test_validation_fail_if_token_not_array(self):
+        self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
+            [
+              'token: 123'
             ])
         })
         repo_data = yaml_reader.read(jenkins_yaml_path)
@@ -413,3 +511,19 @@ class TestCredentialsSchema(object):
         with pytest.raises(jsonschema.ValidationError) as excinfo:
             jsonschema.validate(repo_data, self.schema)
         assert excinfo.value.message == "Additional properties are not allowed ('test' was unexpected)"
+
+    def test_validation_fail_for_token_additional_properties(self):
+        self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
+            [
+              '    token:',
+              '    - scope: global',
+              '      username: user',
+              '      password: passwd',
+              '      description: test token credentials',
+              '      id: this-is-token-credentials-id'
+            ])
+        })
+        repo_data = yaml_reader.read(jenkins_yaml_path)
+        with pytest.raises(jsonschema.ValidationError) as excinfo:
+            jsonschema.validate(repo_data, self.schema)
+        assert excinfo.value.message == "Additional properties are not allowed ('password' was unexpected)"

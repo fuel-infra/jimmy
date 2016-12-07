@@ -16,25 +16,26 @@
 
 import jenkins.model.Jenkins
 import com.cloudbees.jenkins.plugins.sshcredentials.impl.*
-import com.cloudbees.jenkins.plugins.sshcredentials.impl.*;
+import com.cloudbees.jenkins.plugins.sshcredentials.impl.*
 import com.cloudbees.plugins.credentials.*
-import com.cloudbees.plugins.credentials.*;
+import com.cloudbees.plugins.credentials.*
 import com.cloudbees.plugins.credentials.common.*
 import com.cloudbees.plugins.credentials.domains.*
-import com.cloudbees.plugins.credentials.domains.*;
+import com.cloudbees.plugins.credentials.domains.*
 import com.cloudbees.plugins.credentials.impl.*
-import com.cloudbees.plugins.credentials.impl.*;
-import hudson.plugins.sshslaves.*;
-import jenkins.model.*;
+import com.cloudbees.plugins.credentials.impl.*
+import hudson.model.User
+import hudson.plugins.sshslaves.*
+import jenkins.model.*
 
 class Actions {
   Actions(out) { this.out = out }
   def out
 
 
-  private credentials_for_user(String id, String username) {
+  private credentialsForUser(String id, String username) {
     def matcher
-    def available_credentials =
+    def availableCredentials =
       CredentialsProvider.lookupCredentials(
         StandardUsernameCredentials.class,
         Jenkins.getInstance(),
@@ -47,77 +48,82 @@ class Actions {
       matcher = CredentialsMatchers.withUsername(username)
     }
     def matched = CredentialsMatchers.firstOrNull(
-      available_credentials,
+      availableCredentials,
       matcher
     )
     return matched
   }
 
-  void update_credentials(String scope,
-                          String username,
-                          String password="",
-                          String description="",
-                          String private_key="",
-                          String id="") {
+  void updateCredentials(String scope,
+                         String username,
+                         String password="",
+                         String description="",
+                         String privateKey="",
+                         String id="") {
 
     //removing '' quotes, jenkins cli bug workaround
     scope = scope.replaceAll('^\'|\'$', '')
     username = username.replaceAll('^\'|\'$', '')
     password = password.replaceAll('^\'|\'$', '')
     description = description.replaceAll('^\'|\'$', '')
-    private_key = private_key.replaceAll('^\'|\'$', '')
+    privateKey = privateKey.replaceAll('^\'|\'$', '')
     id = id.replaceAll('^\'|\'$', '')
 
-    def global_domain = Domain.global()
-    def credentials_store =
+    def globalDomain = Domain.global()
+    def credentialsStore =
       Jenkins.instance.getExtensionList(
         'com.cloudbees.plugins.credentials.SystemCredentialsProvider'
       )[0].getStore()
 
-    def credentials_scope
+    def credsScope
     if (scope == "global") {
-      credentials_scope = CredentialsScope.GLOBAL
+      credsScope = CredentialsScope.GLOBAL
     } else if (scope == "system") {
-      credentials_scope = CredentialsScope.SYSTEM
+      credsScope = CredentialsScope.SYSTEM
+    }
+
+    if (password == "") {
+      User userId = User.get(username)
+      password = userId.getProperty(jenkins.security.ApiTokenProperty.class).getApiToken()
     }
 
     def credentials
-    if (private_key == "" ) {
+    if (privateKey == "") {
       credentials = new UsernamePasswordCredentialsImpl(
-        credentials_scope,
+        credsScope,
         id,
         description,
         username,
         password
       )
     } else {
-      def key_source
-      if (private_key.startsWith('-----BEGIN')) {
-        key_source = new BasicSSHUserPrivateKey.DirectEntryPrivateKeySource(private_key)
+      def keySource
+      if (privateKey.startsWith('-----BEGIN')) {
+        keySource = new BasicSSHUserPrivateKey.DirectEntryPrivateKeySource(private_key)
       } else if (private_key.startsWith('from-jenkins-ssh-dir')) {
-        key_source = new BasicSSHUserPrivateKey.UsersPrivateKeySource()
+        keySource = new BasicSSHUserPrivateKey.UsersPrivateKeySource()
       } else {
-        key_source = new BasicSSHUserPrivateKey.FileOnMasterPrivateKeySource(private_key)
+        keySource = new BasicSSHUserPrivateKey.FileOnMasterPrivateKeySource(private_key)
       }
       credentials = new BasicSSHUserPrivateKey(
-        credentials_scope,
+        credsScope,
         id,
         username,
-        key_source,
+        keySource,
         password,
         description
       )
     }
     // Create or update the credentials in the Jenkins instance
-    def existing_credentials = credentials_for_user(id, username)
-    if(existing_credentials != null) {
-      credentials_store.updateCredentials(
-        global_domain,
-        existing_credentials,
+    def existingCredentials = credentialsForUser(id, username)
+    if(existingCredentials != null) {
+      credentialsStore.updateCredentials(
+        globalDomain,
+        existingCredentials,
         credentials
       )
     } else {
-      credentials_store.addCredentials(global_domain, credentials)
+      credentialsStore.addCredentials(globalDomain, credentials)
     }
   }
 }
