@@ -99,11 +99,11 @@ class Actions {
     } else {
       def keySource
       if (privateKey.startsWith('-----BEGIN')) {
-        keySource = new BasicSSHUserPrivateKey.DirectEntryPrivateKeySource(private_key)
-      } else if (private_key.startsWith('from-jenkins-ssh-dir')) {
+        keySource = new BasicSSHUserPrivateKey.DirectEntryPrivateKeySource(privateKey)
+      } else if (privateKey.startsWith('from-jenkins-ssh-dir')) {
         keySource = new BasicSSHUserPrivateKey.UsersPrivateKeySource()
       } else {
-        keySource = new BasicSSHUserPrivateKey.FileOnMasterPrivateKeySource(private_key)
+        keySource = new BasicSSHUserPrivateKey.FileOnMasterPrivateKeySource(privateKey)
       }
       credentials = new BasicSSHUserPrivateKey(
         credsScope,
