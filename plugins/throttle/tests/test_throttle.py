@@ -58,7 +58,7 @@ class TestThrottlePlugin(base.TestCase):
                                       '    categories:',
                                       '    - category_name: category1',
                                       '      max_total_concurrent_builds: 1',
-                                      '      max_concurrent_bulds_per_node: 0',
+                                      '      max_concurrent_builds_per_node: 0',
                                       '      max_per_labeled_node:',
                                       '      - throttled_node_label: slave-label1',
                                       '        max_concurrent_per_labeled: 1',
@@ -66,7 +66,7 @@ class TestThrottlePlugin(base.TestCase):
                                       '        max_concurrent_per_labeled: 1',
                                       '    - category_name: category2',
                                       '      max_total_concurrent_builds: 1',
-                                      '      max_concurrent_bulds_per_node: 0'
+                                      '      max_concurrent_builds_per_node: 0'
                                   ])
                               })
         sys.path.insert(0, plugins_dir)
@@ -119,7 +119,7 @@ class TestThrottleSchema(object):
               'categories:',
               '- category_name: category1',
               '  max_total_concurrent_builds: 1',
-              '  max_concurrent_bulds_per_node: 0',
+              '  max_concurrent_builds_per_node: 0',
               '  max_per_labeled_node:',
               '  - throttled_node_label: slave-label1',
               '    max_concurrent_per_labeled: 1'
@@ -134,7 +134,7 @@ class TestThrottleSchema(object):
               'categories:',
               '- category_name: 123',
               '  max_total_concurrent_builds: 1',
-              '  max_concurrent_bulds_per_node: 0',
+              '  max_concurrent_builds_per_node: 0',
               '  max_per_labeled_node:',
               '  - throttled_node_label: slave-label1',
               '    max_concurrent_per_labeled: 1'
@@ -151,7 +151,7 @@ class TestThrottleSchema(object):
               'categories:',
               '- category_name: category1',
               '  max_total_concurrent_builds: test',
-              '  max_concurrent_bulds_per_node: 0',
+              '  max_concurrent_builds_per_node: 0',
               '  max_per_labeled_node:',
               '  - throttled_node_label: slave-label1',
               '    max_concurrent_per_labeled: 1'
@@ -162,13 +162,13 @@ class TestThrottleSchema(object):
             jsonschema.validate(repo_data, self.schema)
         assert excinfo.value.message == "'test' is not of type 'number'"
 
-    def test_validation_fail_if_max_concurrent_bulds_per_node_is_not_num(self):
+    def test_validation_fail_if_max_concurrent_builds_per_node_is_not_num(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
             [
               'categories:',
               '- category_name: category1',
               '  max_total_concurrent_builds: 1',
-              '  max_concurrent_bulds_per_node: test',
+              '  max_concurrent_builds_per_node: test',
               '  max_per_labeled_node:',
               '  - throttled_node_label: slave-label1',
               '    max_concurrent_per_labeled: 1'
@@ -185,7 +185,7 @@ class TestThrottleSchema(object):
               'categories:',
               '- category_name: category1',
               '  max_total_concurrent_builds: 1',
-              '  max_concurrent_bulds_per_node: 0',
+              '  max_concurrent_builds_per_node: 0',
               '  max_per_labeled_node:',
               '  - throttled_node_label: 123',
               '    max_concurrent_per_labeled: 1'
@@ -202,7 +202,7 @@ class TestThrottleSchema(object):
               'categories:',
               '- category_name: category1',
               '  max_total_concurrent_builds: 1',
-              '  max_concurrent_bulds_per_node: 0',
+              '  max_concurrent_builds_per_node: 0',
               '  max_per_labeled_node:',
               '  - throttled_node_label: slave-label1',
               '    max_concurrent_per_labeled: test'
@@ -218,7 +218,7 @@ class TestThrottleSchema(object):
             [
               'categories:',
               '- max_total_concurrent_builds: 1',
-              '  max_concurrent_bulds_per_node: 0',
+              '  max_concurrent_builds_per_node: 0',
               '  max_per_labeled_node:',
               '  - throttled_node_label: slave-label1',
               '    max_concurrent_per_labeled: 1'
@@ -234,7 +234,7 @@ class TestThrottleSchema(object):
             [
               'categories:',
               '- category_name: category1',
-              '  max_concurrent_bulds_per_node: 0',
+              '  max_concurrent_builds_per_node: 0',
               '  max_per_labeled_node:',
               '  - throttled_node_label: slave-label1',
               '    max_concurrent_per_labeled: 1'
@@ -259,7 +259,7 @@ class TestThrottleSchema(object):
         repo_data = yaml_reader.read(jenkins_yaml_path)
         with pytest.raises(jsonschema.ValidationError) as excinfo:
             jsonschema.validate(repo_data, self.schema)
-        assert excinfo.value.message == "'max_concurrent_bulds_per_node' is a required property"
+        assert excinfo.value.message == "'max_concurrent_builds_per_node' is a required property"
 
     def test_password_validation_fail_for_throttled_node_label_required_property(self):
         self.mfs.add_entries({jenkins_yaml_path: '\n'.join(
@@ -267,7 +267,7 @@ class TestThrottleSchema(object):
               'categories:',
               '- category_name: category1',
               '  max_total_concurrent_builds: 1',
-              '  max_concurrent_bulds_per_node: 0',
+              '  max_concurrent_builds_per_node: 0',
               '  max_per_labeled_node:',
               '  - max_concurrent_per_labeled: 1'
             ])
@@ -283,7 +283,7 @@ class TestThrottleSchema(object):
               'categories:',
               '- category_name: category1',
               '  max_total_concurrent_builds: 1',
-              '  max_concurrent_bulds_per_node: 0',
+              '  max_concurrent_builds_per_node: 0',
               '  max_per_labeled_node:',
               '  - throttled_node_label: slave-label1'
             ])
@@ -310,7 +310,7 @@ class TestThrottleSchema(object):
               'categories:',
               '- category_name: category1',
               '  max_total_concurrent_builds: 1',
-              '  max_concurrent_bulds_per_node: 0',
+              '  max_concurrent_builds_per_node: 0',
               '  max_per_labeled_node: 123'
             ])
         })
@@ -325,7 +325,7 @@ class TestThrottleSchema(object):
               'categories:',
               '- category_name: category1',
               '  max_total_concurrent_builds: 1',
-              '  max_concurrent_bulds_per_node: 0',
+              '  max_concurrent_builds_per_node: 0',
               '  test: test'
             ])
         })
@@ -340,7 +340,7 @@ class TestThrottleSchema(object):
               'categories:',
               '- category_name: category1',
               '  max_total_concurrent_builds: 1',
-              '  max_concurrent_bulds_per_node: 0',
+              '  max_concurrent_builds_per_node: 0',
               '  max_per_labeled_node:',
               '  - throttled_node_label: slave-label1',
               '    max_concurrent_per_labeled: 1',

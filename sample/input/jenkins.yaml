@@ -99,7 +99,7 @@ jenkins:
     categories:
     - category_name: category1
       max_total_concurrent_builds: 1
-      max_concurrent_bulds_per_node: 0
+      max_concurrent_builds_per_node: 0
       max_per_labeled_node:
       - throttled_node_label: slave-label1
         max_concurrent_per_labeled: 1
@@ -107,7 +107,7 @@ jenkins:
         max_concurrent_per_labeled: 1
     - category_name: category2
       max_total_concurrent_builds: 1
-      max_concurrent_bulds_per_node: 0
+      max_concurrent_builds_per_node: 0
 
   security:
     ldap:

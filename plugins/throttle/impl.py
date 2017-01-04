@@ -57,7 +57,7 @@ class ThrottleConcurrentPlugin(BaseGroovyPlugin):
                                  "create_throttle_category",
                                  p["category_name"],
                                  str(p["max_total_concurrent_builds"]),
-                                 str(p["max_concurrent_bulds_per_node"]),
+                                 str(p["max_concurrent_builds_per_node"]),
                                  ",".join(throttled_node_label_list),
                                  ",".join(map(str, max_conc_per_labeled_list))
                                  ], shell=False)

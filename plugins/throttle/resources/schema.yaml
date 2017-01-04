@@ -17,7 +17,7 @@ properties:
           minimum: 0
           type: number
 
-        max_concurrent_bulds_per_node:
+        max_concurrent_builds_per_node:
           description: The Maximum Concurrent Builds Per Node.
           minimum: 0
           type: number
@@ -48,4 +48,4 @@ properties:
       required:
       - category_name
       - max_total_concurrent_builds
-      - max_concurrent_bulds_per_node
+      - max_concurrent_builds_per_node
